@@ -1,3 +1,9 @@
+## 前端开发强制规则
+
+- 凡涉及 `apps/web/**` 或 `tests/e2e/**` 的分析、设计、编码、重构、测试与评审，开始工作前**必须先阅读并遵守** [`.agents/rules/fronted-development.md`](.agents/rules/fronted-development.md)（规则名称：`fronted开发规范`）。
+- 该规则是本项目的前端目录职责、依赖方向、React/TypeScript 实现和验证门禁基准；不得把业务组件、业务数据或通用 UI 继续堆放到 `apps/web/src/app/`。
+- 若前端规则与本文其他要求存在冲突，以本文为准；OpenSpec、文档同步和 Git 规范不因引用前端规则而豁免。
+
 ## 1.Think Before Coding
 
 - [ ]

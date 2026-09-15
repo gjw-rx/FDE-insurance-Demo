@@ -2,6 +2,11 @@
 
 本目录保存 Agent 可以直接执行的项目辅助资源。项目约束入口仍是根目录 `AGENTS.md`，完整流程见 `docs/engineering/ai-workflow.md`。
 
+## 项目规则
+
+- [`rules/fronted-development.md`](./rules/fronted-development.md)：`fronted开发规范`，适用于 `apps/web/**` 与 `tests/e2e/**`，规定前端目录职责、依赖方向、实现约束和验证门禁。
+- 前端工作必须先按根 [`AGENTS.md`](../AGENTS.md) 的强制入口读取该规则；根规则优先级高于目录内专项规则。
+
 ## 文档检查
 
 - 手动运行：`corepack pnpm docs:check`。
