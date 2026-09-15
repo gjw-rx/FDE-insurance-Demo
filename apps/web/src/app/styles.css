@@ -142,6 +142,8 @@ body {
   padding: 16px 20px;
   min-height: 400px;
   min-width: 0;
+  display: flex; /* 仅新增：让对话输入区吸底（见 dialog-function design.md D2） */
+  flex-direction: column;
 }
 
 .chat-panel__header {
@@ -234,6 +236,116 @@ body {
   line-height: 1.55;
   color: #424651;
   white-space: pre-line; /* 保留静态示例数据中的换行 */
+}
+
+/* ----- 对话输入区（dialog-function，按 designs/designs/dialog/export.png） ----- */
+
+.chat-composer {
+  margin-top: auto; /* 贴附对话主区底部，padding-top 作为与消息的最小间距 */
+  padding-top: 28px;
+}
+
+.chat-composer__box {
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background-color: var(--color-surface);
+  padding: 14px 14px 12px;
+}
+
+.chat-composer__box:focus-within {
+  border-color: #c3c9de; /* 聚焦态由容器边框体现，避免 textarea 自带 outline 破坏设计稿外观 */
+}
+
+.chat-composer__input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: 0;
+  background-color: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text);
+  resize: none; /* 避免拖拽破坏卡片布局 */
+  outline: none;
+}
+
+.chat-composer__input::placeholder {
+  color: #a5a9b4;
+}
+
+.chat-composer__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.chat-composer__upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background-color: #f7f8fb;
+  color: #2b2f3a;
+  font-family: inherit;
+  font-size: 13px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.chat-composer__upload:hover {
+  background-color: #eef0f6;
+}
+
+.chat-composer__upload-icon {
+  width: 15px;
+  height: 15px;
+}
+
+.chat-composer__hint {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  min-width: 0;
+}
+
+.chat-composer__send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-left: auto;
+  border: 0;
+  border-radius: 50%;
+  background-color: #356df3;
+  color: #ffffff;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.chat-composer__send:hover:not(:disabled) {
+  background-color: #2b61e0;
+}
+
+.chat-composer__send:disabled {
+  background-color: #cbd6f5;
+  cursor: not-allowed;
+}
+
+.chat-composer__send-icon {
+  width: 19px;
+  height: 19px;
+}
+
+.chat-composer__error {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #d9534f;
 }
 
 /* ===== 卡片公共标题区 ===== */

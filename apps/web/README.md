@@ -1,6 +1,6 @@
 # Web 工程骨架
 
-该应用采用 React + TypeScript + Vite，承载材料上传、五项资料确认、会话、报价和核保进度界面。当前已实现工作台首屏静态壳（见 `openspec/changes/front-init/`）：按 `designs/insurance-assistant.png` 原型还原四个区域，交互仅用前端本地状态，不调用后端接口。
+该应用采用 React + TypeScript + Vite，承载材料上传、五项资料确认、会话、报价和核保进度界面。当前已实现工作台首屏静态壳（见归档 change `openspec/changes/archive/2026-09-15-front-init/`）：按 `designs/insurance-assistant.png` 原型还原四个区域，并按 `designs/designs/dialog/export.png` 补充对话输入区（见归档 change `openspec/changes/archive/2026-09-15-dialog-function/`）；交互仅用前端本地状态，不调用后端接口。
 
 ```text
 src/
@@ -11,7 +11,8 @@ src/
 │   ├── data.ts                     # 静态示例数据（保司清单、车牌、欢迎文案、用户名）
 │   ├── icons.tsx                   # 手写内联 SVG 图标
 │   ├── brand-bar.tsx               # 应用品牌栏
-│   ├── chat-panel.tsx              # 对话主区（助手标题与欢迎消息）
+│   ├── chat-panel.tsx              # 对话主区（助手标题、欢迎消息与输入区）
+│   ├── chat-composer.tsx           # 对话输入区（文本输入、上传入口、发送按钮）
 │   ├── quote-card.tsx              # 最新报价卡片（隐藏/显示切换）
 │   └── insurer-settings-card.tsx   # 保司设置卡片（单选切换）
 ├── features/
