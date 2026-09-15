@@ -1,31 +1,51 @@
-# 项目文档索引
+# 项目文档地图
 
-## 权威顺序
+本目录保存产品意图、需求入口、架构、技术资料、开发方法和测试计划。OpenSpec 管理可验收的产品行为与单次迭代；实现细节以代码和自动化测试为准。目录与命名的完整规范见 [AI 工程工作流](./engineering/ai-workflow.md)。
 
-发生冲突时，按以下顺序处理：
+## 开始工作
 
-1. 已确认的 OpenSpec capability spec：产品可观察行为。
-2. 当前变更的 `proposal.md` 与 `design.md`：本次范围和技术决策。
-3. 本目录下的 ADR、架构和测试文档：长期工程约束。
-4. 各 `apps/*`、`packages/*` 下的 README：局部目录职责。
+1. 先读仓库根目录的 [`AGENTS.md`](../AGENTS.md)，了解协作和操作约束。
+2. 阅读 [AI 工程工作流](./engineering/ai-workflow.md)，从下面的主题索引找到对应需求与相关文档，确认已有决策和边界。
+3. 产品行为或实现范围变化时，先查看 [`openspec/changes/`](../openspec/changes/) 中的活动 change；没有合适的 change 时，按 [AI 工程工作流](./engineering/ai-workflow.md) 新建一个。
 
-不要从聊天记录或 Agent session 反推最终需求；重要决策必须写回 OpenSpec 或 ADR。
+## 主题索引
 
-## 导航
+| 主题        | 文档                                                                         | 负责回答的问题                                                             |
+| ----------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| 产品        | [愿景](./product/vision.md)、[阶段路线](./product/roadmap.md)                | 为什么做、当前范围和能力建设顺序                                           |
+| 需求与迭代  | [OpenSpec changes](../openspec/changes/)、[已确认 specs](../openspec/specs/) | 用户可观察行为、验收场景和本次迭代范围；需求文件名与 spec 名一致           |
+| 架构        | [DDD 与系统设计](./arch/system-design.md)                                    | 模块边界、依赖方向、运行路径和安全边界                                     |
+| 技术资料    | [tech](./tech/)、[ADR-0001 技术栈](./tech/0001-technology-stack.md)          | 中间件、框架、依赖、包管理工具与服务，按名称维护选型、版本、配置和验证说明 |
+| 外部集成    | [Pi Agent](./impl/pi-agent.md)                                               | Pi SDK、Web/API 对接、会话关联和工具权限                                   |
+| 测试        | [testing](./testing/)、[E2E 策略](./testing/e2e-strategy.md)                 | 各 change 的功能测试计划、执行证据，以及总体分层验证与 CI 门禁             |
+| AI 工程管理 | [工作流](./engineering/ai-workflow.md)                                       | Agent 如何开始、执行、验证和交接任务                                       |
+| 架构图产物  | [artifacts/architecture](../artifacts/architecture/)                         | 前后端整体架构的图源、渲染图与验证产物，由 arch 文档关联                   |
 
-| 主题                | 文档                                                             |
-| ------------------- | ---------------------------------------------------------------- |
-| 技术栈与 pnpm       | [0001-technology-stack.md](./decisions/0001-technology-stack.md) |
-| DDD 与整体架构      | [system-design.md](./architecture/system-design.md)              |
-| Pi SDK 与 sessionId | [pi-agent.md](./integrations/pi-agent.md)                        |
-| E2E 测试            | [e2e-strategy.md](./testing/e2e-strategy.md)                     |
-| AI 辅助开发流程     | [ai-workflow.md](./engineering/ai-workflow.md)                   |
-| 迭代拆分            | [roadmap.md](./roadmap.md)                                       |
+## 文档与事实来源
 
-## 文档维护规则
+| 问题                   | 以什么为准                                                   | 需要更新什么                                                               |
+| ---------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| 用户应该看到什么行为   | 已归档的主 spec；未完成行为看当前 change 的 delta spec       | 在 OpenSpec change 中写 requirement 和 scenario；归档时同步主 spec         |
+| 当前迭代做什么         | 活动 change 的 proposal、design、tasks                       | 实现范围变化时先更新 change 产物，再修改实现                               |
+| 需求与迭代如何关联     | `features/<feature-name>.md` 的 spec/change 引用             | 需求名与 spec 目录名一致，新增 change 或归档时更新关联；不复制任务状态     |
+| 本次变更如何验收       | `testing/<change-name>.md` 和实际测试产物                    | 实现前准备测试计划，spec 实现完成后同步覆盖、命令、实际结果与证据          |
+| 为什么采用当前技术方案 | Accepted ADR                                                 | 方案改变时更新或新增 ADR，并标注状态和日期                                 |
+| 系统如何组织           | 架构文档描述的目标与已确认边界；实际运行行为由代码和测试证明 | 模块、依赖或数据流变化时更新架构图和正文                                   |
+| 已经实现了什么         | 当前代码、迁移和通过的自动化测试                             | 实现与 spec 不一致时修复实现或通过 OpenSpec 变更需求；不能只改文档掩盖偏差 |
+| 第三方 SDK 如何工作    | 锁定版本的官方文档、类型定义和可重复的验证结果               | tech 记录技术选型与版本，impl 记录对接契约和联调；升级时同步迁移影响和证据 |
 
-- 修改用户可观察行为：先改 OpenSpec。
-- 修改跨模块技术决策：新增或更新 ADR。
-- 修改目录职责或依赖方向：同步更新架构文档和对应包 README。
-- 外部 SDK 升级：记录版本、迁移影响、验证证据和回滚方式。
-- 图和正文必须表达同一架构；Archify 源 JSON 与 HTML 放在同一目录。
+聊天记录、模型推断和 Agent session 都不是项目事实来源。重要决策和交接信息必须落在上述对应文件中。
+
+## OpenSpec 生命周期
+
+OpenSpec 承担需求规格、单次迭代设计、任务清单和历史归档；`docs/features/` 提供同名需求入口，`docs/testing/<change-name>.md` 保存测试计划和结果，不另建任务清单。每个 change 应保持范围小且可验收；实现、验证与测试计划同步完成后，先同步确认的 specs，再将 change 归档到 `openspec/changes/archive/`，并更新需求与测试文档的归档链接。长期有效的架构、技术资料和第三方对接信息应在归档前沉淀到对应目录。
+
+## 维护规则
+
+- 文档与代码一起演进；描述尚未实现的内容时明确标成“目标”或“计划”。
+- 用户行为写在 OpenSpec；跨 change 有效的产品意图、架构原则和技术决策写在本目录。
+- 阶段路线只表达顺序，不复制 OpenSpec 的逐项任务状态。
+- 目录职责和依赖方向改变时，同步更新架构文档及受影响包的 README。
+- 图和正文表达同一套架构；更新 Archify 图后，检查图源、导出物和验证状态。
+- 引入或变更任何中间件、依赖、工具或服务时，按名称更新 `tech/`；第三方服务对接细节统一维护在 `impl/`，两者相互链接。
+- 目录或文件改名后，修复文档入口与正文引用，避免 Agent 沿失效链接读取旧资料。

@@ -9,6 +9,7 @@
     "pnpm": ">=12 <13"
   },
   "scripts": {
+    "docs:check": "node .agents/check-docs.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "workspace:list": "corepack pnpm list --recursive --depth -1"

@@ -1,8 +1,12 @@
-# 整体架构与 DDD 主体设计
+# 目标架构与 DDD 主体设计
+
+> 本文描述项目骨架要演进到的目标架构与已确认边界，不代表每个业务模块都已实现。实际完成状态由代码、数据库迁移和自动化测试证明；产品行为和验收标准见 [OpenSpec](../../openspec/)。
 
 ## 核心原则
 
 续保办理是强业务流程，保险问答是低延迟知识服务。两条路径共用用户工作台和业务 `sessionId`，但运行资源、工具集和完成条件相互隔离。
+
+产品范围和用户体验原则见[产品愿景](../product/vision.md)，模块间依赖和工程决策见[文档地图](../README.md)。
 
 投保五项固定为：VIN、发动机号、身份证号、车主姓名、车牌号。缺失、空白或存在未解决冲突时，服务端必须拒绝提交核保；前端置灰和 Agent 提示只能改善体验，不能代替门禁。
 
@@ -79,10 +83,12 @@ apps/api ---> packages/application ---> packages/domain
 - `sessionId` 是关联键，不是访问凭证；所有查询仍需用户或运营权限校验。
 - 所有外部写操作带幂等键；超时后先查询状态，再决定是否重试。
 
-## Archify 产物
+## Archify 架构图
 
 - 图源：[system-architecture.architecture.json](../../artifacts/architecture/system-architecture.architecture.json)
-- 类型：architecture
-- 质量目标：showcase
-- 当前验证状态：未通过，剩余 1 个 `composition/label-route-clearance`，涉及 API→路由标签与 API→业务数据库连线。
-- HTML：未生成。Archify 要求 validation 通过后才可执行 deliver，因此当前不提供伪验收结果。
+- 可交互 HTML：[system-architecture.html](../../artifacts/architecture/system-architecture.html)
+- 类型与质量配置：architecture / showcase
+- 图中展示用户与 React Web、业务 API、用例路由、续保和快速问答路径，以及 Pi Agent Runtime、受控保险业务工具、保险公司接口、知识库、业务数据库和材料对象存储之间的边界与连接。
+- Archify showcase 校验：9 项检查全部通过，composition 错误和警告均为 0。
+- 自动浏览器证据：[检查报告](../../artifacts/architecture/system-architecture.visual-check.json) · [截图总览](../../artifacts/architecture/system-architecture.visual-check.html)。Chrome 检查在 1440×900、1600×1000、1920×1080 和 2048×1320 视口通过，无溢出且可读性检查通过；截图覆盖 1440×900 与 2048×1320 的浅色和深色主题。
+- 人工截图抽查：已检查 1440×900 浅色、1440×900 深色和 2048×1320 浅色截图，未见明显遮挡，主要架构路径和说明卡片清晰可读。

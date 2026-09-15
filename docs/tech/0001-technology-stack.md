@@ -19,6 +19,8 @@
 
 版本来自 2026-09-15 的 npm registry 查询。升级必须单独提交依赖变更，并重新验证 SDK 类型、构建和 E2E。
 
+各技术的实际版本、使用位置与维护方式分别见 [Node.js](./nodejs.md)、[pnpm](./pnpm.md)、[TypeScript](./typescript.md)、[React](./react.md)、[Vite](./vite.md)、[Fastify](./fastify.md)、[Pi SDK](./pi-sdk.md)、[Playwright](./playwright.md)、[Prettier](./prettier.md)、[tsx](./tsx.md) 和 [Vitest](./vitest.md)。本 ADR 记录跨技术选型，单项资料随依赖状态维护。
+
 ## 为什么选择 pnpm
 
 项目天然包含 Web、API、共享契约、领域层和应用层。pnpm workspace 可用一个锁文件管理全部包，并通过 `workspace:*` 明确声明内部包只能解析到本仓库；包未声明的依赖不会因为根目录安装而被隐式使用。官方 workspace 文档也说明了 `workspace:` 协议和共享锁文件的行为：[pnpm Workspace](https://pnpm.io/workspaces)。

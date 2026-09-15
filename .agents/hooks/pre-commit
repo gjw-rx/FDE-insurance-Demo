@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+
+snapshot=$(mktemp -d "${TMPDIR:-/tmp}/insurance-docs.XXXXXX")
+trap 'rm -rf "$snapshot"' EXIT
+
+git checkout-index --all --prefix="$snapshot/"
+node "$snapshot/.agents/check-docs.mjs" --root "$snapshot"
