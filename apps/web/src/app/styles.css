@@ -1,0 +1,430 @@
+/* 工作台首屏静态壳全局样式与 design tokens。
+   token 值来自原型 designs/insurance-assistant.pen。 */
+
+:root {
+  /* 颜色 tokens（对应原型 variables） */
+  --color-bg: #f3f5ff; /* 页面背景 */
+  --color-surface: #ffffff; /* 卡片/面板背景 */
+  --color-text: #171a25; /* 主文字 */
+  --color-text-muted: #8a90a1; /* 次级文字 */
+  --color-line: #e8eaf2; /* 分割线/描边 */
+  --color-accent-purple: #6d63d8; /* 强调紫 */
+  --color-accent-mint: #5ecac1; /* 薄荷绿 */
+  --color-brand-purple: #21149a; /* 品牌紫（YiLiang 折角） */
+  --color-brand-purple-dark: #201090; /* 品牌紫（左侧竖条） */
+  --color-brand-cyan: #59c9db; /* 品牌青色圆点 */
+
+  /* 圆角 */
+  --radius-page: 14px;
+  --radius-card: 5px;
+  --radius-panel: 4px;
+  --radius-pill: 12px;
+  --radius-tag: 3px;
+
+  /* 阴影 */
+  --shadow-bar: 0 4px 14px rgba(41, 48, 74, 0.1);
+  --shadow-card: 0 3px 12px rgba(41, 48, 74, 0.07);
+  --shadow-bubble: 0 2px 10px rgba(45, 51, 69, 0.04);
+
+  /* 字体栈：原型字体 Inter 为首选，回退系统无衬线字体，不引入字体文件 */
+  --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== 页面骨架 ===== */
+
+.workbench {
+  max-width: 1048px;
+  margin: 0 auto;
+  padding: 24px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.workbench-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 684px) minmax(0, 348px);
+  justify-content: space-between;
+  gap: 17px;
+  align-items: stretch;
+}
+
+.workbench-side {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+  min-width: 0;
+}
+
+/* ===== 应用品牌栏 ===== */
+
+.brand-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: var(--color-surface);
+  border-radius: 2px;
+  box-shadow: var(--shadow-bar);
+}
+
+.brand-bar__identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brand-mark {
+  height: 36px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.brand-bar__product-name {
+  font-size: 21px;
+  font-weight: 600;
+  color: #20232c;
+}
+
+.brand-bar__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.brand-bar__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f4d88a, #b78630);
+}
+
+.brand-bar__greeting {
+  font-size: 13px;
+  font-weight: 600;
+  color: #353945;
+}
+
+.brand-bar__logout {
+  font-size: 13px;
+  color: #5d8196;
+  text-decoration: none;
+}
+
+.brand-bar__logout:hover {
+  text-decoration: underline;
+}
+
+/* ===== 对话主区 ===== */
+
+.chat-panel {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-panel);
+  padding: 16px 20px;
+  min-height: 400px;
+  min-width: 0;
+}
+
+.chat-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-panel__avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #77c8e6, #7252d3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chat-panel__avatar-icon {
+  width: 24px;
+  height: 24px;
+  color: #ffffff;
+}
+
+.chat-panel__intro {
+  min-width: 0;
+}
+
+.chat-panel__name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #242733;
+}
+
+.chat-panel__subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: #7f8492;
+}
+
+.chat-message {
+  display: flex;
+  gap: 14px;
+  margin-top: 23px;
+}
+
+.chat-message__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #f1e8e7;
+  border: 1px solid #e6d9d8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chat-message__avatar-icon {
+  width: 18px;
+  height: 18px;
+  color: #2e2934;
+}
+
+.chat-message__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.chat-message__time {
+  font-size: 10px;
+  color: #c4c7d0;
+}
+
+.chat-message__bubble {
+  background-color: #fbfbfd;
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-bubble);
+  padding: 11px 14px;
+  max-width: 430px;
+}
+
+.chat-message__text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #424651;
+  white-space: pre-line; /* 保留静态示例数据中的换行 */
+}
+
+/* ===== 卡片公共标题区 ===== */
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-head__icon {
+  width: 18px;
+  height: 18px;
+  color: #989da8;
+  flex-shrink: 0;
+}
+
+.card-head__icon--mint {
+  color: #6fc4bb;
+}
+
+.card-head__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #282b35;
+}
+
+/* ===== 最新报价卡片 ===== */
+
+.quote-card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 21px 16px;
+}
+
+.quote-card__toggle {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  padding: 2px 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  color: #b2b6c0;
+}
+
+.quote-card__toggle-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.quote-card__toggle:hover {
+  color: #8a90a1;
+}
+
+.quote-card__content {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.quote-card__plate {
+  background-color: #fafafc;
+  border-radius: var(--radius-tag);
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555966;
+}
+
+.quote-card__summary {
+  margin: 0;
+  font-size: 13px;
+  color: #555966;
+}
+
+/* ===== 保司设置卡片 ===== */
+
+.insurer-card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 18px 16px;
+}
+
+.insurer-card__list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.insurer-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  border-bottom: 1px solid var(--color-line);
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+
+.insurer-card__list li:last-child .insurer-item {
+  border-bottom: none;
+}
+
+.insurer-item__identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.insurer-item__logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.insurer-item__labels {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.insurer-item__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #464a55;
+}
+
+.insurer-item__english-name {
+  font-size: 9px;
+  color: #c0c3cb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.insurer-item__state {
+  width: 52px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  border: 1px solid #c5c8d0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  color: #9b9fa9;
+}
+
+.insurer-item--selected .insurer-item__state {
+  border-color: #83aaa8;
+  color: #659896;
+}
+
+/* ===== 响应式：单一收窄断点（见 design.md D5） ===== */
+
+@media (max-width: 1024px) {
+  .workbench-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chat-panel {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-bar__identity {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .insurer-item__english-name {
+    display: none;
+  }
+}

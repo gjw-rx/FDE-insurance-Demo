@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "description": "React + Vite 车险续保工作台",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
   "dependencies": {
     "@renewal/contracts": "workspace:*",
     "react": "19.3.0",
