@@ -1,0 +1,19 @@
+# 打包编译产物
+out 
+dist 
+node_modules
+
+## Agent
+.pi/
+
+# 系统变量
+/.vscode
+$PWD/
+node_modules/
+dist/
+.env
+.DS_Store
+coverage/
+playwright-report/
+test-results/
+artifacts/architecture/*.visual-check/

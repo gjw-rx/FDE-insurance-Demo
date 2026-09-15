@@ -1,0 +1,10 @@
+{
+  "name": "@renewal/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "跨前后端共享的 DTO、事件与 API 契约",
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

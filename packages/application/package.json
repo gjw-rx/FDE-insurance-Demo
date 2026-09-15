@@ -1,0 +1,14 @@
+{
+  "name": "@renewal/application",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "续保用例、端口和应用编排",
+  "dependencies": {
+    "@renewal/contracts": "workspace:*",
+    "@renewal/domain": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,15 @@
+packages:
+  - apps/*
+  - packages/*
+
+catalog:
+  "@types/node": 24.10.1
+  typescript: 7.0.2
+  vitest: 5.0.0
+
+disallowWorkspaceCycles: true
+
+allowBuilds:
+  "@google/genai": true
+  esbuild: true
+  protobufjs: true

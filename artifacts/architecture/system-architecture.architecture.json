@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "车险续保助手整体对接架构",
+    "locale": "zh-CN",
+    "output": "system-architecture.html",
+    "quality_profile": "showcase",
+    "viewBox": [1390, 790]
+  },
+  "components": [
+    {
+      "id": "customer",
+      "type": "external",
+      "label": "用户",
+      "sublabel": "上传 / 对话 / 确认",
+      "pos": [0, 330],
+      "size": [120, 72]
+    },
+    {
+      "id": "web",
+      "type": "frontend",
+      "label": "React Web",
+      "sublabel": "续保工作台",
+      "tag": "React + TypeScript + Vite",
+      "pos": [160, 330],
+      "size": [155, 72]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "业务 API",
+      "sublabel": "鉴权 / 校验 / SSE",
+      "tag": "Fastify + TypeScript",
+      "pos": [340, 330],
+      "size": [160, 72]
+    },
+    {
+      "id": "router",
+      "type": "backend",
+      "label": "意图与用例路由",
+      "sublabel": "续保办理 / 快速问答",
+      "pos": [530, 330],
+      "size": [175, 72]
+    },
+    {
+      "id": "renewal",
+      "type": "backend",
+      "label": "续保应用服务",
+      "sublabel": "五项门禁 / 幂等 / 状态机",
+      "pos": [750, 150],
+      "size": [185, 76]
+    },
+    {
+      "id": "fastqa",
+      "type": "backend",
+      "label": "保险快速问答",
+      "sublabel": "一次检索 + 一次生成",
+      "pos": [750, 480],
+      "size": [185, 76]
+    },
+    {
+      "id": "pi",
+      "type": "cloud",
+      "label": "Pi Agent Runtime",
+      "sublabel": "AgentSession / loop / tools",
+      "tag": "Pi SDK",
+      "pos": [970, 150],
+      "size": [185, 76]
+    },
+    {
+      "id": "tools",
+      "type": "security",
+      "label": "受控保险业务工具",
+      "sublabel": "仅接收业务 ID",
+      "pos": [1180, 150],
+      "size": [170, 76]
+    },
+    {
+      "id": "insurers",
+      "type": "external",
+      "label": "保险公司接口",
+      "sublabel": "报价 / 核保 / 出单",
+      "pos": [1180, 330],
+      "size": [170, 76]
+    },
+    {
+      "id": "knowledge",
+      "type": "database",
+      "label": "保险知识库",
+      "sublabel": "条款 / FAQ / 版本来源",
+      "pos": [970, 480],
+      "size": [185, 76]
+    },
+    {
+      "id": "businessdb",
+      "type": "database",
+      "label": "业务数据库",
+      "sublabel": "案件 / session / run / event",
+      "pos": [750, 630],
+      "size": [185, 76]
+    },
+    {
+      "id": "materials",
+      "type": "database",
+      "label": "材料对象存储",
+      "sublabel": "证件 / 行驶证 / OCR 原件",
+      "pos": [340, 630],
+      "size": [160, 76]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "前端",
+      "wraps": ["web"]
+    },
+    {
+      "kind": "region",
+      "label": "续保助手后端",
+      "wraps": [
+        "api",
+        "router",
+        "renewal",
+        "fastqa",
+        "pi",
+        "tools",
+        "businessdb",
+        "materials"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "Agent 工具权限边界",
+      "wraps": ["pi", "tools"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "customerWeb",
+      "from": "customer",
+      "to": "web",
+      "label": "HTTPS",
+      "variant": "emphasis",
+      "labelDy": 60
+    },
+    {
+      "id": "webApi",
+      "from": "web",
+      "to": "api",
+      "label": "REST + SSE",
+      "variant": "emphasis",
+      "labelDy": 60
+    },
+    {
+      "id": "apiRouter",
+      "from": "api",
+      "to": "router",
+      "label": "命令 / 查询",
+      "labelDx": -50,
+      "labelDy": 67
+    },
+    {
+      "id": "routeRenewal",
+      "from": "router",
+      "to": "renewal",
+      "label": "续保办理"
+    },
+    {
+      "id": "routeQa",
+      "from": "router",
+      "to": "fastqa",
+      "label": "保险咨询"
+    },
+    {
+      "id": "renewalPi",
+      "from": "renewal",
+      "to": "pi",
+      "label": "prompt + context",
+      "labelDy": 62
+    },
+    {
+      "id": "piTools",
+      "from": "pi",
+      "to": "tools",
+      "label": "受控 tool call",
+      "variant": "security",
+      "labelDy": 62
+    },
+    {
+      "id": "toolsInsurers",
+      "from": "tools",
+      "to": "insurers",
+      "label": "适配后请求",
+      "labelDy": 24
+    },
+    {
+      "id": "qaKnowledge",
+      "from": "fastqa",
+      "to": "knowledge",
+      "label": "单次检索",
+      "labelDy": 62
+    },
+    {
+      "id": "apiDatabase",
+      "from": "api",
+      "to": "businessdb",
+      "label": "案件 / session / 幂等"
+    },
+    {
+      "id": "apiMaterials",
+      "from": "api",
+      "to": "materials",
+      "label": "上传 / 读取",
+      "labelDy": 24
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "投保门禁",
+      "items": [
+        "VIN、发动机号、身份证号、车主姓名、车牌号缺一不可",
+        "服务端在每次核保提交前重新校验"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Pi 边界",
+      "items": [
+        "Pi 提供 AgentSession、loop 与工具调用",
+        "业务状态、权限和幂等由后端掌控"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "可查询性",
+      "items": [
+        "业务 sessionId 关联 renewalCaseId、piSessionId、runId 与 traceId",
+        "业务数据库是状态事实来源"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@renewal/domain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "不依赖框架的续保领域模型与业务规则",
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

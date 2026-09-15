@@ -1,0 +1,889 @@
+{
+  "version": "2.17",
+  "children": [
+    {
+      "type": "frame",
+      "id": "hd0SA",
+      "x": 0,
+      "y": 0,
+      "name": "保险助手桌面原型",
+      "clip": true,
+      "width": 1212,
+      "height": 786,
+      "fill": "$bg",
+      "cornerRadius": 14,
+      "layout": "none",
+      "children": [
+        {
+          "type": "frame",
+          "id": "suPkC",
+          "x": 0,
+          "y": 0,
+          "name": "浏览器顶部栏",
+          "width": 1212,
+          "height": 74,
+          "fill": "#FFFFFF",
+          "stroke": "#E7E9F1",
+          "strokeWidth": {
+            "bottom": 1
+          },
+          "layout": "none",
+          "children": [
+            {
+              "type": "ellipse",
+              "id": "t9COt2",
+              "x": 34,
+              "y": 13,
+              "name": "关闭",
+              "fill": "#FF605C",
+              "width": 11,
+              "height": 11
+            },
+            {
+              "type": "ellipse",
+              "id": "uqIUm",
+              "x": 55,
+              "y": 13,
+              "name": "最小化",
+              "fill": "#FFBD44",
+              "width": 11,
+              "height": 11
+            },
+            {
+              "type": "ellipse",
+              "id": "rpATR",
+              "x": 76,
+              "y": 13,
+              "name": "最大化",
+              "fill": "#00CA4E",
+              "width": 11,
+              "height": 11
+            },
+            {
+              "type": "icon",
+              "id": "TTxu4",
+              "x": 45,
+              "y": 45,
+              "name": "后退",
+              "width": 18,
+              "height": 18,
+              "icon": "chevron-left",
+              "library": "lucide",
+              "fill": "#69707C"
+            },
+            {
+              "type": "icon",
+              "id": "lGrDe",
+              "x": 78,
+              "y": 45,
+              "name": "前进",
+              "width": 18,
+              "height": 18,
+              "icon": "chevron-right",
+              "library": "lucide",
+              "fill": "#C8CBD3"
+            },
+            {
+              "type": "icon",
+              "id": "IcIFf",
+              "x": 109,
+              "y": 45,
+              "name": "刷新",
+              "width": 18,
+              "height": 18,
+              "icon": "rotate-cw",
+              "library": "lucide",
+              "fill": "#69707C"
+            },
+            {
+              "type": "text",
+              "id": "NozBR",
+              "x": 533,
+              "y": 15,
+              "name": "窗口标题",
+              "fill": "#4A4E58",
+              "content": "AI智能车险助手 - 义乌科技",
+              "fontFamily": "$font",
+              "fontSize": 12,
+              "fontWeight": "600"
+            },
+            {
+              "type": "icon",
+              "id": "rAgwc",
+              "x": 952,
+              "y": 45,
+              "name": "编辑",
+              "width": 17,
+              "height": 17,
+              "icon": "pen-line",
+              "library": "lucide",
+              "fill": "#626875"
+            },
+            {
+              "type": "icon",
+              "id": "oJ6rj",
+              "x": 984,
+              "y": 45,
+              "name": "设置",
+              "width": 17,
+              "height": 17,
+              "icon": "settings",
+              "library": "lucide",
+              "fill": "#626875"
+            },
+            {
+              "type": "icon",
+              "id": "hg3WW",
+              "x": 1016,
+              "y": 45,
+              "name": "组件",
+              "width": 17,
+              "height": 17,
+              "icon": "box",
+              "library": "lucide",
+              "fill": "#626875"
+            },
+            {
+              "type": "icon",
+              "id": "vSo7b",
+              "x": 1048,
+              "y": 45,
+              "name": "文字",
+              "width": 17,
+              "height": 17,
+              "icon": "type",
+              "library": "lucide",
+              "fill": "#626875"
+            },
+            {
+              "type": "icon",
+              "id": "BNexv",
+              "x": 1080,
+              "y": 45,
+              "name": "搜索",
+              "width": 17,
+              "height": 17,
+              "icon": "search",
+              "library": "lucide",
+              "fill": "#626875"
+            },
+            {
+              "type": "icon",
+              "id": "yXcau",
+              "x": 1112,
+              "y": 45,
+              "name": "链接",
+              "width": 17,
+              "height": 17,
+              "icon": "link",
+              "library": "lucide",
+              "fill": "#626875"
+            },
+            {
+              "type": "icon",
+              "id": "i140DW",
+              "x": 1144,
+              "y": 45,
+              "name": "帮助",
+              "width": 17,
+              "height": 17,
+              "icon": "circle-help",
+              "library": "lucide",
+              "fill": "#626875"
+            },
+            {
+              "type": "icon",
+              "id": "uFatI",
+              "x": 1176,
+              "y": 45,
+              "name": "通知",
+              "width": 17,
+              "height": 17,
+              "icon": "bell",
+              "library": "lucide",
+              "fill": "#626875"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "s00Qh3",
+          "x": 91,
+          "y": 92,
+          "name": "应用品牌栏",
+          "width": 1048,
+          "height": 76,
+          "fill": "$surface",
+          "cornerRadius": 2,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#29304A1A",
+            "offset": {
+              "x": 0,
+              "y": 4
+            },
+            "blur": 14
+          },
+          "padding": [
+            0,
+            20
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "U5v4l",
+              "name": "品牌标识",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "qHVaV",
+                  "name": "YiLiang图形标",
+                  "width": 62,
+                  "height": 36,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "cornerRadius": 2,
+                      "id": "UROCV",
+                      "x": 0,
+                      "y": 3,
+                      "name": "左侧竖条",
+                      "fill": "#201090",
+                      "width": 15,
+                      "height": 30
+                    },
+                    {
+                      "type": "path",
+                      "id": "xOeNi",
+                      "x": 20,
+                      "y": 3,
+                      "name": "右侧折角",
+                      "geometry": "M0 0h14c0 12 5 17 21 17v13h-10c-16 0-25-9-25-23z",
+                      "viewBox": [
+                        0,
+                        0,
+                        35,
+                        30
+                      ],
+                      "fill": "#21149A",
+                      "width": 35,
+                      "height": 30
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "Amjhc",
+                      "x": 51,
+                      "y": 0,
+                      "name": "青色圆点",
+                      "fill": "#59C9DB",
+                      "width": 15,
+                      "height": 15
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "lC4Xs",
+                  "name": "品牌文字",
+                  "fill": "#0D1018",
+                  "content": "YiLiang",
+                  "fontFamily": "$font",
+                  "fontSize": 29,
+                  "fontWeight": "700",
+                  "letterSpacing": -1
+                },
+                {
+                  "type": "text",
+                  "id": "nYkNl",
+                  "name": "产品名称",
+                  "fill": "#20232C",
+                  "content": "AI智能车险助手",
+                  "fontFamily": "$font",
+                  "fontSize": 21,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "l0o3wj",
+              "name": "用户信息",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "ellipse",
+                  "id": "WEw4N",
+                  "name": "用户头像",
+                  "fill": {
+                    "type": "gradient",
+                    "gradientType": "linear",
+                    "enabled": true,
+                    "rotation": 135,
+                    "size": {
+                      "height": 1
+                    },
+                    "colors": [
+                      {
+                        "color": "#F4D88A",
+                        "position": 0
+                      },
+                      {
+                        "color": "#B78630",
+                        "position": 1
+                      }
+                    ]
+                  },
+                  "width": 28,
+                  "height": 28
+                },
+                {
+                  "type": "text",
+                  "id": "GE9ie",
+                  "name": "欢迎语",
+                  "fill": "#353945",
+                  "content": "你好,Max",
+                  "fontFamily": "$font",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "esKSE",
+                  "name": "退出入口",
+                  "fill": "#5D8196",
+                  "content": "退出",
+                  "fontFamily": "$font",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "h2Vsw",
+          "x": 792,
+          "y": 185,
+          "name": "最新报价卡片",
+          "width": 348,
+          "height": 252,
+          "fill": "$surface",
+          "cornerRadius": 5,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#29304A12",
+            "offset": {
+              "x": 0,
+              "y": 3
+            },
+            "blur": 12
+          },
+          "layout": "none",
+          "children": [
+            {
+              "type": "icon",
+              "id": "PN6ZA",
+              "x": 16,
+              "y": 21,
+              "name": "报价图标",
+              "width": 19,
+              "height": 19,
+              "icon": "file-text",
+              "library": "lucide",
+              "fill": "#6FC4BB"
+            },
+            {
+              "type": "text",
+              "id": "oqwKP",
+              "x": 45,
+              "y": 21,
+              "name": "报价标题",
+              "fill": "#282B35",
+              "content": "最新报价",
+              "fontFamily": "$font",
+              "fontSize": 16,
+              "fontWeight": "700"
+            },
+            {
+              "type": "icon",
+              "id": "h9sr7",
+              "x": 274,
+              "y": 23,
+              "name": "隐藏图标",
+              "width": 16,
+              "height": 16,
+              "icon": "eye-off",
+              "library": "lucide",
+              "fill": "#BDC1CB"
+            },
+            {
+              "type": "text",
+              "id": "nvd4d",
+              "x": 296,
+              "y": 23,
+              "name": "隐藏文字",
+              "fill": "#B2B6C0",
+              "content": "隐藏",
+              "fontFamily": "$font",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "r5YwOs",
+              "x": 31,
+              "y": 67,
+              "name": "报价车牌标签",
+              "width": 78,
+              "height": 28,
+              "fill": "#FAFAFC",
+              "cornerRadius": 3,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "K8D2B",
+                  "name": "报价车牌号",
+                  "fill": "#555966",
+                  "content": "粤B196YS",
+                  "fontFamily": "$font",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "sbmsW",
+          "x": 792,
+          "y": 454,
+          "name": "保司设置卡片",
+          "width": 348,
+          "height": 292,
+          "fill": "$surface",
+          "cornerRadius": 5,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#29304A12",
+            "offset": {
+              "x": 0,
+              "y": 3
+            },
+            "blur": 12
+          },
+          "layout": "none",
+          "children": [
+            {
+              "type": "icon",
+              "id": "VrHys",
+              "x": 16,
+              "y": 18,
+              "name": "保司设置图标",
+              "width": 18,
+              "height": 18,
+              "icon": "settings-2",
+              "library": "lucide",
+              "fill": "#989DA8"
+            },
+            {
+              "type": "text",
+              "id": "cA94t",
+              "x": 45,
+              "y": 18,
+              "name": "保司设置标题",
+              "fill": "#282B35",
+              "content": "保司设置",
+              "fontFamily": "$font",
+              "fontSize": 16,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "f81ZQ",
+              "x": 16,
+              "y": 57,
+              "name": "中国平安保险设置项",
+              "width": 316,
+              "height": 48,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Ypjtp",
+                  "name": "中国平安保险信息",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "h3X7B",
+                      "name": "中国平安保险标志",
+                      "fill": "#EE6B2D",
+                      "width": 40,
+                      "height": 40
+                    },
+                    {
+                      "type": "frame",
+                      "id": "p3laz",
+                      "name": "中国平安保险标签",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "G3THT1",
+                          "name": "中国平安保险名称",
+                          "fill": "#464A55",
+                          "content": "中国平安保险",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "vriL6",
+                          "name": "中国平安保险英文名",
+                          "fill": "#C0C3CB",
+                          "content": "PING AN INSURANCE",
+                          "fontFamily": "$font",
+                          "fontSize": 9,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "D4EjyL",
+                  "name": "中国平安保险选择状态",
+                  "width": 52,
+                  "height": 24,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 12,
+                  "stroke": "#C5C8D0",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Z1q0B",
+                      "name": "中国平安保险状态文字",
+                      "fill": "#9B9FA9",
+                      "content": "请选择",
+                      "fontFamily": "$font",
+                      "fontSize": 10,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "yZDpi",
+              "x": 16,
+              "y": 117,
+              "name": "太平洋保险设置项",
+              "width": 316,
+              "height": 48,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "R2DHW",
+                  "name": "太平洋保险信息",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "MpND4",
+                      "name": "太平洋保险标志",
+                      "fill": "#174A96",
+                      "width": 40,
+                      "height": 40
+                    },
+                    {
+                      "type": "frame",
+                      "id": "a9Bok0",
+                      "name": "太平洋保险标签",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "HIy69",
+                          "name": "太平洋保险名称",
+                          "fill": "#464A55",
+                          "content": "太平洋保险",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "IEjS4",
+                          "name": "太平洋保险英文名",
+                          "fill": "#C0C3CB",
+                          "content": "CPIC INSURANCE",
+                          "fontFamily": "$font",
+                          "fontSize": 9,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "chKwF",
+                  "name": "太平洋保险选择状态",
+                  "width": 52,
+                  "height": 24,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 12,
+                  "stroke": "#83AAA8",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "y78D0",
+                      "name": "太平洋保险状态文字",
+                      "fill": "#659896",
+                      "content": "已选择",
+                      "fontFamily": "$font",
+                      "fontSize": 10,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "zgdcD",
+              "x": 16,
+              "y": 177,
+              "name": "国寿财设置项",
+              "width": 316,
+              "height": 48,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "yppIF",
+                  "name": "国寿财信息",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "Qckwm",
+                      "name": "国寿财标志",
+                      "fill": "#4BAE8D",
+                      "width": 40,
+                      "height": 40
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Lo6IX",
+                      "name": "国寿财标签",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "dR4Mi",
+                          "name": "国寿财名称",
+                          "fill": "#464A55",
+                          "content": "国寿财",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "X9wpi",
+                          "name": "国寿财英文名",
+                          "fill": "#C0C3CB",
+                          "content": "CHINA LIFE P&C",
+                          "fontFamily": "$font",
+                          "fontSize": 9,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "J4H0QN",
+                  "name": "国寿财选择状态",
+                  "width": 52,
+                  "height": 24,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 12,
+                  "stroke": "#C5C8D0",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "rJwlm",
+                      "name": "国寿财状态文字",
+                      "fill": "#9B9FA9",
+                      "content": "请选择",
+                      "fontFamily": "$font",
+                      "fontSize": 10,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "FPyDB",
+              "x": 16,
+              "y": 237,
+              "name": "阳光保险设置项",
+              "width": 316,
+              "height": 48,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "JoD7D",
+                  "name": "阳光保险信息",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "z2lUf",
+                      "name": "阳光保险标志",
+                      "fill": "#F0A91C",
+                      "width": 40,
+                      "height": 40
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Im0S3",
+                      "name": "阳光保险标签",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "DOODn",
+                          "name": "阳光保险名称",
+                          "fill": "#464A55",
+                          "content": "阳光保险",
+                          "fontFamily": "$font",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "K4vn4E",
+                          "name": "阳光保险英文名",
+                          "fill": "#C0C3CB",
+                          "content": "SUNSHINE INSURANCE",
+                          "fontFamily": "$font",
+                          "fontSize": 9,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "VBZhW",
+                  "name": "阳光保险选择状态",
+                  "width": 52,
+                  "height": 24,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 12,
+                  "stroke": "#C5C8D0",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "TTk9L",
+                      "name": "阳光保险状态文字",
+                      "fill": "#9B9FA9",
+                      "content": "请选择",
+                      "fontFamily": "$font",
+                      "fontSize": 10,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variables": {
+    "bg": {
+      "type": "color",
+      "value": "#F3F5FF"
+    },
+    "surface": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "text": {
+      "type": "color",
+      "value": "#171A25"
+    },
+    "muted": {
+      "type": "color",
+      "value": "#8A90A1"
+    },
+    "line": {
+      "type": "color",
+      "value": "#E8EAF2"
+    },
+    "purple": {
+      "type": "color",
+      "value": "#6D63D8"
+    },
+    "mint": {
+      "type": "color",
+      "value": "#5ECAC1"
+    },
+    "font": {
+      "type": "string",
+      "value": "Inter"
+    }
+  },
+  "fileToken": "29cd46f2-e409-4739-b0c1-46f235398073"
+}

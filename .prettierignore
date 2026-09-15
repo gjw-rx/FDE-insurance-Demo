@@ -1,0 +1,5 @@
+artifacts/architecture/*.html
+node_modules
+dist
+playwright-report
+test-results

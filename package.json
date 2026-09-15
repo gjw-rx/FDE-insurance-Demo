@@ -1,0 +1,21 @@
+{
+  "name": "insurance-renewal-assistant",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.4.1",
+  "engines": {
+    "node": ">=24 <25",
+    "pnpm": ">=12 <13"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "workspace:list": "corepack pnpm list --recursive --depth -1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "prettier": "3.6.2",
+    "typescript": "7.0.2"
+  }
+}
