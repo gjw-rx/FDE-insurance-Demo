@@ -1,6 +1,6 @@
+import { BotIcon, PersonIcon } from "../../shared/ui/icons";
 import { ChatComposer } from "./chat-composer";
 import { welcomeMessage } from "./data";
-import { BotIcon, PersonIcon } from "./icons";
 
 // 对话主区：助手标题、带时间戳的欢迎消息与底部对话输入区（输入区仅本地交互）。
 export function ChatPanel() {

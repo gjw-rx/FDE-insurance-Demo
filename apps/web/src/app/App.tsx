@@ -1,7 +1,7 @@
 import { BrandBar } from "./brand-bar";
-import { ChatPanel } from "./chat-panel";
-import { InsurerSettingsCard } from "./insurer-settings-card";
-import { QuoteCard } from "./quote-card";
+import { ChatPanel } from "../features/chat/chat-panel";
+import { InsurerSettingsCard } from "../features/renewal/insurer-settings-card";
+import { QuoteCard } from "../features/renewal/quote-card";
 
 // 工作台首屏静态壳：按原型组合品牌栏、对话主区与右列两张卡片（见 design.md D2/D5）。
 export function App() {

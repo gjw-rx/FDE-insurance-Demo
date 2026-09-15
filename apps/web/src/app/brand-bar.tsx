@@ -1,5 +1,5 @@
 import brandLogo from "../assets/brand-logo.png";
-import { currentUser } from "./data";
+import { currentUser } from "./current-user";
 
 // 应用品牌栏：品牌图形标、产品名、用户问候与退出入口。
 export function BrandBar() {

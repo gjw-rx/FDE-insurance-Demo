@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { EyeIcon, EyeOffIcon, FileTextIcon } from "../../shared/ui/icons";
 import { latestQuote } from "./data";
-import { EyeIcon, EyeOffIcon, FileTextIcon } from "./icons";
 
 const PLATE_MASK = "••••••";
 const SUMMARY_MASK = "••••••••••••";

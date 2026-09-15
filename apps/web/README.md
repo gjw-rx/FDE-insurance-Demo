@@ -4,23 +4,19 @@
 
 ```text
 src/
-├── app/                            # 应用入口与首屏静态壳
+├── app/                            # 应用入口与页面外壳
 │   ├── main.tsx                    # 应用入口
 │   ├── App.tsx                     # 首屏布局组合
-│   ├── styles.css                  # 全局样式与 design tokens（颜色/圆角/阴影/字体栈）
-│   ├── data.ts                     # 静态示例数据（保司清单、车牌、欢迎文案、用户名）
-│   ├── icons.tsx                   # 手写内联 SVG 图标
 │   ├── brand-bar.tsx               # 应用品牌栏
-│   ├── chat-panel.tsx              # 对话主区（助手标题、欢迎消息与输入区）
-│   ├── chat-composer.tsx           # 对话输入区（文本输入、上传入口、发送按钮）
-│   ├── quote-card.tsx              # 最新报价卡片（隐藏/显示切换）
-│   └── insurer-settings-card.tsx   # 保司设置卡片（单选切换）
+│   ├── current-user.ts             # 外壳使用的静态用户信息
+│   └── styles.css                  # 全局样式与 design tokens（颜色/圆角/阴影/字体栈）
 ├── features/
-│   ├── chat/                       # 对话和快速保险问答（预留，待接 API）
-│   └── renewal/                    # 材料、五项资料、报价与核保进度（预留，待接 API）
-└── shared/
-    ├── api/                        # HTTP/SSE 客户端（预留）
-    └── ui/                         # 无业务语义的通用组件（预留）
+│   ├── chat/                       # 对话主区、输入区与静态欢迎消息
+│   └── renewal/                    # 报价、保司设置与静态续保数据
+├── shared/
+│   ├── api/                        # HTTP/SSE 客户端（预留）
+│   └── ui/                         # 无业务语义的通用 UI（当前为内联 SVG 图标）
+└── assets/                         # 图片等静态资源
 ```
 
 Web 只依赖 `@renewal/contracts`，不直接依赖领域实体、Pi SDK 或保险公司 SDK。

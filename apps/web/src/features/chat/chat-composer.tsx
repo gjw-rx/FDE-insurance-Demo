@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent } from "react";
-import { ArrowUpIcon, PaperclipIcon } from "./icons";
+import { ArrowUpIcon, PaperclipIcon } from "../../shared/ui/icons";
 
 // 文件类型限制：文案、选择器过滤与本地校验共用同一约定（见 design.md D4/D5）。
 const FILE_ACCEPT = "image/*,.pdf";

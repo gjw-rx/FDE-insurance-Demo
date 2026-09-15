@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { Settings2Icon } from "../../shared/ui/icons";
 import { initiallySelectedInsurerId, insurerOptions } from "./data";
-import { Settings2Icon } from "./icons";
 
 // 保司设置卡片：四家保司清单，「请选择 / 已选择」单选切换（同一时刻至多一家已选择）。
 export function InsurerSettingsCard() {
