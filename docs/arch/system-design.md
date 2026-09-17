@@ -37,13 +37,17 @@ apps/api ---> packages/application ---> packages/domain
     |                   |
     +-------------------+-------------> packages/contracts
     |
-    +-- Pi / DB / OCR / Knowledge / Insurer adapters
+    +-- HTTP/SSE --> apps/insurance-agent --> Pi SDK
+    +-- DB / OCR / Knowledge / Insurer adapters
 ```
 
 - `domain` 不依赖任何其他 workspace 包。
 - `application` 依赖 `domain` 和 `contracts`，定义用例和端口。
 - `api` 实现端口并完成依赖装配。
+- `insurance-agent` 是独立进程，只依赖 Pi SDK 与 contracts；`api` 通过内部 HTTP/SSE typed client 调用，不在自身进程创建 Pi runtime。
 - `web` 只消费 contracts，不直接使用领域实体或 Pi SDK。
+
+当前 `integrate-insurance-agent-runtime` change 只实现独立 Pi runtime 与内部统一接口。它不实现 Renewal、Material、Knowledge 等业务用例，不注册保险业务工具，也不新增浏览器路由。
 
 ## 两条执行路径
 
@@ -78,7 +82,7 @@ apps/api ---> packages/application ---> packages/domain
 
 ## 安全边界
 
-- Pi 禁用通用 `bash`、文件写入和任意网络工具，只注册明确的保险业务工具。
+- 当前 Pi runtime 禁用 `bash`、文件写入和任意网络工具，只启用受目录门禁保护的 `read`、`grep`、`find`、`ls`；保险业务工具留给后续独立 change。
 - 身份证号、材料正文和保险公司凭据不得进入普通日志或 telemetry 属性。
 - `sessionId` 是关联键，不是访问凭证；所有查询仍需用户或运营权限校验。
 - 所有外部写操作带幂等键；超时后先查询状态，再决定是否重试。

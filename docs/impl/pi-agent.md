@@ -9,7 +9,7 @@ Pi 官方提供两种适合本项目的嵌入方式：
 1. Node.js/TypeScript 进程内使用 `@earendil-works/pi-coding-agent` SDK。
 2. 通过 `pi --mode rpc` 启动独立进程，使用 stdin/stdout JSONL 协议。
 
-本项目选择 SDK 作为首选方案，因为 API 同样使用 TypeScript，可以直接订阅 Agent 事件、访问 session 状态和注册受控工具。RPC 保留为将来进程隔离或非 Node 宿主的替代方案。
+本项目选择 SDK，并将它嵌入独立的 `apps/insurance-agent` 服务进程。业务 API 不直接依赖 Pi SDK，只通过 `apps/api/src/infrastructure/agent/agent-service-client.ts` 调用内部 HTTP/SSE 契约。当前 change 只建立运行时与统一接口，不实现任何保险业务。
 
 官方入口：
 
@@ -29,21 +29,42 @@ Pi 官方提供两种适合本项目的嵌入方式：
 
 ```text
 React Web
-  -> HTTPS: message/material/command
+  -> 未来的业务 API（不在当前 change）
 Fastify API
-  -> Application use case
-Pi SDK adapter
-  -> AgentSession.prompt()
+  -> internal HTTP: create / abort
+  <- internal SSE: run events
+insurance-agent
+  -> Pi AgentSession.prompt()
   <- session.subscribe(event)
-Fastify API
-  -> persist business event
-  <- SSE cursor stream
-React Web
 ```
 
-Pi SDK 管理模型交互、消息上下文、loop、工具调用、压缩和流式事件。业务 API 管理鉴权、请求状态、业务 session、案件、幂等、超时和事件重放。
+Pi SDK 管理模型交互、单次 run 上下文、loop、只读工具、压缩和原始事件。`insurance-agent` 管理并发、超时、终态和内存事件重放；业务 API 只持有 typed client。鉴权、业务 session、案件和业务事件持久化均由后续 change 实现。
 
-## 建议的业务接口
+## 当前内部服务契约
+
+| Method | Path                                 | 结果                                                            |
+| ------ | ------------------------------------ | --------------------------------------------------------------- |
+| `GET`  | `/health/live`                       | 进程存活与 Agent 名称                                           |
+| `GET`  | `/health/ready`                      | 配置、资源、catalog、模型与凭据 readiness                       |
+| `POST` | `/internal/agent/runs`               | 接受 `{ sessionId, runId, message }`，重复 `runId` 返回既有快照 |
+| `GET`  | `/internal/agent/runs/:runId/events` | 通过 `after` 或 `Last-Event-ID` 续接 SSE                        |
+| `POST` | `/internal/agent/runs/:runId/abort`  | 幂等停止并返回当前快照                                          |
+
+稳定错误码为 `INVALID_REQUEST`、`CONFIG_INVALID`、`MODEL_UNAVAILABLE`、`SERVICE_NOT_READY`、`CAPACITY_EXCEEDED`、`RUN_NOT_FOUND`、`EVENT_CURSOR_EXPIRED` 和 `INTERNAL_ERROR`。API client 将响应映射为 service、connection、timeout 或 protocol 错误，不新增浏览器路由。
+
+## 配置、readiness 与生命周期
+
+- 非敏感配置来自 `config/insurance-agent.json`；`INSURANCE_AGENT_CONFIG_PATH` 可指向环境专属配置。
+- 模型密钥只从配置声明的环境变量（默认 `INSURANCE_AGENT_API_KEY`）注入内存，不写入配置、runtime data、日志或测试证据。
+- `ModelRuntime` 显式使用 `.runtime/insurance-agent` 下的 `auth.json`、`models.json` 和 `models-store.json`；catalog 刷新有超时，模型或认证不可用时保持 not-ready，禁止 fallback。
+- 每个 run 使用独立的内存 `SessionManager` 和 `AgentSessionRuntime`。重复 `runId` 不重复启动；容量超限返回可重试错误；完成、provider 失败、abort 与 timeout 只收敛到一个终态。
+- SIGINT/SIGTERM 先停止接受新 run，再停止活动 run 并关闭 HTTP 服务。SSE 客户端断开只释放 subscriber，不中止 run。
+
+## 事件与脱敏
+
+对外只映射 run、agent、answer delta、turn、tool、retry、compaction 和终态事件，并为每个 run 分配单调 cursor。thinking、prompt、文件正文、工具参数/结果和 credential 不进入 SSE 或普通日志。事件按配置限制数量和保留时间，慢消费者断开后需携带 cursor 重连。
+
+## 后续业务接口（不在当前 change）
 
 | API                                                   | 作用                       |
 | ----------------------------------------------------- | -------------------------- |
@@ -56,7 +77,7 @@ Pi SDK 管理模型交互、消息上下文、loop、工具调用、压缩和流
 | `POST /api/renewals/{renewalCaseId}/quotes`           | 发起报价                   |
 | `POST /api/renewals/{renewalCaseId}/underwriting`     | 服务端门禁后提交核保       |
 
-Pi 原始事件应转换为稳定的业务事件再发送给 Web。前端不解析 Agent 文本来判断 `canSubmit`、报价或核保状态。
+以上接口尚未实现。后续 change 需要把 Agent 事件转换为稳定业务事件；前端不得解析 Agent 文本来判断 `canSubmit`、报价或核保状态。
 
 ## sessionId 设计
 
@@ -71,11 +92,11 @@ Pi 原始事件应转换为稳定的业务事件再发送给 Web。前端不解�
 | `traceId`          | 可观测系统 | 一次运行的跨服务调用链         |
 | `insurerRequestId` | 保险适配层 | 对应外部报价/核保请求          |
 
-数据库至少保存 `sessionId -> renewalCaseId` 以及每次 `runId -> piSessionId + traceId`。Pi SDK 的 `AgentSession.sessionId`、持久化 `SessionManager` 和从数据库 entries 恢复的能力可以支撑 Agent 上下文恢复；业务查询仍以项目数据库为准。
+当前 change 只在内存中保存项目 `sessionId`、`runId` 与单次 Pi session 的运行关联，不实现数据库。未来业务会话 change 才负责持久化映射；业务查询仍以项目数据库为准。
 
-## Pi 工具边界
+## 后续业务工具边界（不在当前 change）
 
-首期建议工具保持少而明确：
+当前 runtime 的活动工具严格只有 Pi 内置 `read`、`grep`、`find`、`ls`，并通过执行前 hook 限制在受控工作目录内；没有注册下列业务 custom tools。未来如需增加，必须使用独立 OpenSpec change：
 
 - `get_renewal_case(renewalCaseId)`
 - `update_confirmed_fields(renewalCaseId, dataVersion)`
@@ -85,10 +106,28 @@ Pi 原始事件应转换为稳定的业务事件再发送给 Web。前端不解�
 
 工具不接受模型拼接出的全量身份证或车辆资料。工具执行前，应用服务按当前登录用户重新加载案件并校验权限、五项完整性、数据版本、状态和幂等键。
 
-## 快速问答配置
+## 后续快速问答配置
 
-快速问答不复用续保 Agent 的工具循环。应用层先执行一次知识检索，再交给一次回答生成；运行不注册任何续保工具，禁用重试式自我反思，设置短超时和回答长度上限。Pi 的 thinking level 可以设为模型支持的最低值或关闭，但“一次检索、一次生成”的业务边界仍由应用代码控制。
+快速问答不在当前 change。未来实现时不复用续保 Agent 的工具循环，且“一次检索、一次生成”的业务边界仍由应用代码控制。
+
+## 联调与验证
+
+- 默认自动化使用 faux provider、临时 HOME/runtime data/working directory，不访问真实模型或开发机 Pi 配置。
+- `corepack pnpm --filter @renewal/insurance-agent test` 验证配置、SDK runtime、只读路径门禁、run registry 和 HTTP/SSE。
+- `corepack pnpm --filter @renewal/api test` 验证 create/events/abort、连接失败、超时和服务错误映射。
+- 真实模型 smoke 仅在显式提供 `INSURANCE_AGENT_API_KEY` 后运行 `corepack pnpm --filter @renewal/insurance-agent smoke`，且只输出成功状态，不输出 prompt 或回答正文。
 
 ## 可观测性
 
 Pi telemetry 是进程内诊断契约，不是持久化业务状态，也不自带查询后台。项目需要把 `sessionId`、`runId`、`traceId` 和脱敏的工具结果写入选定的日志/trace 系统。禁止记录 prompt 全文、材料正文、身份证号、凭据和完整保险公司响应。
+
+当前实现由 `AgentRunLogger`（定义在 `run-registry.ts`，由 `bootstrap/application.ts` 注入实现）输出 JSON 行结构化运行日志：info 走 stdout、warn/error 走 stderr，便于部署侧分流采集，且启动摘要始终是 stdout 第一行。覆盖范围：
+
+- run 生命周期：`run.accepted`、`run.duplicate`、`run.abort-requested`、终态 `run.completed`/`run.failed`（含稳定错误码）/`run.aborted`（含原因）、`service.stopping`。
+- 拒绝路径：`run.rejected.capacity-exceeded`、`run.rejected.service-closed`、`http.run-create-rejected`（`invalid-request`/`service-not-ready`）、`http.run-abort-not-found`、`http.run-events-not-found`、`http.event-cursor-expired`。
+- 失败摘要：`run.session-create-failed`、`run.prompt-failed` 记录 `Error.name: message` 摘要；对外 SSE 与响应仍只暴露 `INTERNAL_ERROR`，不回显原始错误。
+- 资源与容量：`run.context-files-missing`（run 创建时配置的上下文文件已缺失）、`run.event-buffer-truncated`（事件缓冲被裁剪，只告警一次）、`sse.slow-consumer`。
+- SSE 连接：`sse.subscribed`、`sse.closed`（区分 `terminal`/`client-disconnect`/`slow-consumer`）。
+- readiness：`service.not-ready`、`service.readiness-warning`（启动摘要只带枚举码，具体原因靠日志回查）。
+
+日志字段只包含 runId/sessionId/状态/错误摘要/缺失文件路径，不包含 prompt、回答正文、thinking、文件内容或凭据。

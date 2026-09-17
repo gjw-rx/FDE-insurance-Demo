@@ -1,0 +1,31 @@
+{
+  "agent": {
+    "name": "insurance-agent",
+    "workingDirectory": "."
+  },
+  "model": {
+    "provider": "opencode-go",
+    "id": "deepseek-v4.1-flash",
+    "thinkingLevel": "high",
+    "apiKeyEnv": "INSURANCE_AGENT_API_KEY",
+    "catalogRefreshTimeoutMs": 15000
+  },
+  "runtime": {
+    "dataDirectory": ".runtime/insurance-agent",
+    "maxConcurrentRuns": 4,
+    "runTimeoutMs": 300000,
+    "eventRetentionMs": 900000,
+    "maxEventsPerRun": 1000
+  },
+  "tools": {
+    "allow": ["read", "grep", "find", "ls"]
+  },
+  "resources": {
+    "skillPaths": [],
+    "contextPaths": []
+  },
+  "http": {
+    "host": "127.0.0.1",
+    "port": 4310
+  }
+}

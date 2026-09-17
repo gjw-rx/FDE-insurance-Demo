@@ -1,17 +1,19 @@
 # Vitest
 
-> 状态：计划引入；目标版本：5.0.0
+<!-- tech-packages: vitest -->
+
+> 状态：已使用；版本：5.0.0
 
 ## 用途与选型
 
-Vitest 计划用于领域、应用和 Fastify API 集成测试，与 TypeScript 和 Vite 工具链保持一致。
+Vitest 用于独立 Agent 服务的单元与集成测试，以及 API 基础设施适配器的契约测试，与 TypeScript 和 Vite 工具链保持一致。
 
 ## 使用位置与配置
 
-当前 package manifests 尚未声明 Vitest，因此不能将测试能力记为已实现。后续实现 change 应添加直接依赖、配置项目划分，并在本页加入 `tech-packages` 声明。
+`apps/insurance-agent` 和 `apps/api` 将 Vitest 声明为开发依赖。测试统一放在各 workspace 顶层 `test/` 目录，不与 `src/` 生产代码混放；Agent 测试使用临时目录和 faux provider，API client 测试使用本地 fake HTTP 服务。
 
 ## 验证与维护
 
-引入后验证领域测试、fake ports 和 Fastify inject 测试可独立运行，并在 CI 中纳入每次提交检查。
+运行 `corepack pnpm test` 执行所有已配置的 workspace 测试；也可使用 `corepack pnpm --filter @renewal/insurance-agent test` 或 `corepack pnpm --filter @renewal/api test` 独立验证。
 
 官方资料：[Vitest Projects](https://vitest.dev/guide/projects)。

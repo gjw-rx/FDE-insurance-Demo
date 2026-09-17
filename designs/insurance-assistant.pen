@@ -102,7 +102,7 @@
               "y": 15,
               "name": "窗口标题",
               "fill": "#4A4E58",
-              "content": "AI智能车险助手 - 义乌科技",
+              "content": "AI智能车险助手 ",
               "fontFamily": "$font",
               "fontSize": 12,
               "fontWeight": "600"
@@ -236,77 +236,58 @@
               "type": "frame",
               "id": "U5v4l",
               "name": "品牌标识",
-              "gap": 12,
               "alignItems": "center",
               "children": [
                 {
                   "type": "frame",
-                  "id": "qHVaV",
-                  "name": "YiLiang图形标",
-                  "width": 62,
-                  "height": 36,
+                  "id": "UnufQ",
+                  "name": "蓝色几何品牌Logo",
+                  "clip": true,
+                  "width": 70,
+                  "height": 48,
                   "layout": "none",
                   "children": [
                     {
-                      "type": "rectangle",
-                      "cornerRadius": 2,
-                      "id": "UROCV",
-                      "x": 0,
-                      "y": 3,
-                      "name": "左侧竖条",
-                      "fill": "#201090",
-                      "width": 15,
-                      "height": 30
+                      "type": "path",
+                      "id": "eatBo",
+                      "x": 12.6337,
+                      "y": 0,
+                      "geometry": "M22.36629 0l-22.094 12.75851-0.27229 0.15559 0 8.05187 22.36629 12.7585 7.46839-4.23987-19.02106-11.12479 11.55267-6.76824 0-11.59157z",
+                      "fill": "#2366AB",
+                      "width": 29.8347,
+                      "height": 33.7245
                     },
                     {
                       "type": "path",
-                      "id": "xOeNi",
-                      "x": 20,
-                      "y": 3,
-                      "name": "右侧折角",
-                      "geometry": "M0 0h14c0 12 5 17 21 17v13h-10c-16 0-25-9-25-23z",
-                      "viewBox": [
-                        0,
-                        0,
-                        35,
-                        30
-                      ],
-                      "fill": "#21149A",
-                      "width": 35,
-                      "height": 30
+                      "id": "J7akm5",
+                      "x": 12.6337,
+                      "y": 14.2755,
+                      "geometry": "M9.60778 15.09238l-9.60778 5.83469 22.0551 12.7974 0.54457 0 22.13291-12.7974 0-7.62399-22.36629-13.30308-7.4684 4.62885 19.05997 11.047-11.59157 7.04052-12.75851-7.62399z",
+                      "fill": "#3397D3",
+                      "width": 44.7326,
+                      "height": 33.7245
                     },
                     {
-                      "type": "ellipse",
-                      "id": "Amjhc",
-                      "x": 47,
+                      "type": "path",
+                      "id": "t1925b",
+                      "x": 35,
                       "y": 0,
-                      "name": "青色圆点",
-                      "fill": "#59C9DB",
-                      "width": 15,
-                      "height": 15
+                      "geometry": "M0 0l0 11.59157 12.44733 7.31281 9.91896-5.95138-22.05511-12.953-0.31118 0z",
+                      "fill": "#3EAFE4",
+                      "width": 22.3663,
+                      "height": 18.9044
+                    },
+                    {
+                      "type": "path",
+                      "id": "Hu6pJ",
+                      "x": 35,
+                      "y": 29.9514,
+                      "geometry": "M0 18.04862l0-11.0081 11.63047-7.04052 9.76337 5.87358-20.96596 12.17504-0.42788 0",
+                      "fill": "#3080C1",
+                      "width": 21.3938,
+                      "height": 18.0486
                     }
                   ]
-                },
-                {
-                  "type": "text",
-                  "id": "lC4Xs",
-                  "name": "品牌文字",
-                  "fill": "#0D1018",
-                  "content": "YiLiang",
-                  "fontFamily": "$font",
-                  "fontSize": 29,
-                  "fontWeight": "700",
-                  "letterSpacing": -1
-                },
-                {
-                  "type": "text",
-                  "id": "nYkNl",
-                  "name": "产品名称",
-                  "fill": "#20232C",
-                  "content": "AI智能车险助手",
-                  "fontFamily": "$font",
-                  "fontSize": 21,
-                  "fontWeight": "600"
                 }
               ]
             },
@@ -1076,6 +1057,159 @@
                 },
                 "blur": 2
               }
+            },
+            {
+              "type": "frame",
+              "id": "o9GJ0",
+              "x": 20,
+              "y": 459,
+              "name": "对话输入框",
+              "width": 644,
+              "height": 122,
+              "fill": "#FFFFFF",
+              "cornerRadius": 14,
+              "stroke": "#E6E8EE",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#26324A12",
+                "offset": {
+                  "x": 0,
+                  "y": 5
+                },
+                "blur": 18
+              },
+              "layout": "none",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "JOblc",
+                  "x": 18,
+                  "y": 16,
+                  "name": "消息输入占位文字",
+                  "fill": "#A5A9B4",
+                  "content": "输入您想咨询的车险问题…",
+                  "fontFamily": "$font",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "UvzKA",
+                  "x": 16,
+                  "y": 75,
+                  "name": "文件上传按钮",
+                  "width": 112,
+                  "height": 32,
+                  "fill": "#F7F8FB",
+                  "cornerRadius": 8,
+                  "stroke": "#E8EAF0",
+                  "strokeWidth": 1,
+                  "gap": 7,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "onFIw",
+                      "name": "上传文件图标",
+                      "width": 17,
+                      "height": 17,
+                      "icon": "paperclip",
+                      "library": "lucide",
+                      "fill": "#555B68"
+                    },
+                    {
+                      "type": "text",
+                      "id": "PGmbJ",
+                      "name": "上传文件文字",
+                      "fill": "#555B68",
+                      "content": "上传文件",
+                      "fontFamily": "$font",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "z9x0xH",
+                  "x": 139,
+                  "y": 84,
+                  "name": "文件类型提示",
+                  "fill": "#A5A9B4",
+                  "content": "支持图片、PDF、Word",
+                  "fontFamily": "$font",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "dIOfr",
+                  "x": 586,
+                  "y": 67,
+                  "name": "发送按钮",
+                  "width": 42,
+                  "height": 42,
+                  "fill": "#356DF3",
+                  "cornerRadius": 21,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#356DF340",
+                    "offset": {
+                      "x": 0,
+                      "y": 3
+                    },
+                    "blur": 8
+                  },
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "esbeS",
+                      "name": "发送图标",
+                      "width": 20,
+                      "height": 20,
+                      "icon": "arrow-up",
+                      "library": "lucide",
+                      "weight": 600,
+                      "fill": "#FFFFFF"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "BBMV8",
+                  "x": 586,
+                  "y": 67,
+                  "name": "等待回复时暂停按钮",
+                  "enabled": false,
+                  "width": 42,
+                  "height": 42,
+                  "fill": "#356DF3",
+                  "cornerRadius": 21,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "XDJqq",
+                      "name": "暂停回复图标",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "square",
+                      "library": "lucide",
+                      "fill": "#FFFFFF"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }

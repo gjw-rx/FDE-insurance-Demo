@@ -4,6 +4,15 @@
   "private": true,
   "type": "module",
   "description": "跨前后端共享的 DTO、事件与 API 契约",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./agent": "./src/agent/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "tsc --noEmit -p tsconfig.test.json"
+  },
   "devDependencies": {
     "typescript": "catalog:"
   }

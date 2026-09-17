@@ -17,3 +17,6 @@ coverage/
 playwright-report/
 test-results/
 artifacts/architecture/*.visual-check/
+
+# Agent 运行时数据（凭据、模型 catalog、session）
+.runtime/
