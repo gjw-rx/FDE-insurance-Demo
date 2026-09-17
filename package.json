@@ -9,6 +9,7 @@
     "pnpm": ">=12 <13"
   },
   "scripts": {
+    "dev": "corepack pnpm -r --parallel --stream dev",
     "docs:check": "node .agents/check-docs.mjs",
     "dev:insurance-agent": "corepack pnpm --filter @renewal/insurance-agent dev",
     "format": "prettier --write .",

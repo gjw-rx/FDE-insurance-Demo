@@ -5,7 +5,7 @@
   "type": "module",
   "description": "独立部署的保险 Agent 服务，进程内嵌 Pi SDK",
   "scripts": {
-    "dev": "tsx watch src/bootstrap/main.ts",
+    "dev": "tsx watch --env-file-if-exists=../../.env src/bootstrap/main.ts",
     "start": "tsx src/bootstrap/main.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

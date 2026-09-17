@@ -22,6 +22,29 @@ corepack enable
 corepack pnpm install --frozen-lockfile
 ```
 
+### 启动开发服务
+
+```bash
+corepack pnpm dev
+```
+
+该命令并行启动所有带 `dev` 脚本的应用（当前为 `apps/web` 与 `apps/insurance-agent`）；将来新增应用只要提供 `dev` 脚本即会自动纳入，无需修改此命令。日志按 `包路径 dev:` 前缀区分来源，`Ctrl+C` 一次退出全部进程。
+
+模型凭据写在仓库根目录 `.env`（已被 Git 忽略，勿提交）：
+
+```bash
+INSURANCE_AGENT_API_KEY=your-key
+```
+
+`apps/insurance-agent` 通过 tsx 的 `--env-file-if-exists` 读取该文件，文件缺失时仍会启动，只是 `/health/ready` 返回 `not-ready` 并说明原因。已存在的环境变量优先于 `.env`，因此部署环境注入的凭据不会被覆盖。
+
+单独启动某个应用：
+
+```bash
+corepack pnpm --filter @renewal/web dev
+corepack pnpm dev:insurance-agent
+```
+
 ## 项目状态
 
 当前仓库提供 TypeScript monorepo 工程骨架、DDD 包边界和项目设计文档，不包含业务 TypeScript 实现。后续开发应按小范围 OpenSpec change 迭代。
