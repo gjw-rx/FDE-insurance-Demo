@@ -5,6 +5,8 @@
   "type": "module",
   "description": "Fastify 业务 API 与 Pi/保险公司基础设施适配器",
   "scripts": {
+    "dev": "tsx watch src/bootstrap/main.ts",
+    "start": "tsx src/bootstrap/main.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

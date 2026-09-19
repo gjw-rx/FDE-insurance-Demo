@@ -28,7 +28,7 @@ corepack pnpm install --frozen-lockfile
 corepack pnpm dev
 ```
 
-该命令并行启动所有带 `dev` 脚本的应用（当前为 `apps/web` 与 `apps/insurance-agent`）；将来新增应用只要提供 `dev` 脚本即会自动纳入，无需修改此命令。日志按 `包路径 dev:` 前缀区分来源，`Ctrl+C` 一次退出全部进程。
+该命令并行启动所有带 `dev` 脚本的应用（当前为 `apps/web`、`apps/api` 与 `apps/insurance-agent`）；将来新增应用只要提供 `dev` 脚本即会自动纳入，无需修改此命令。日志按 `包路径 dev:` 前缀区分来源，`Ctrl+C` 一次退出全部进程。
 
 模型凭据写在仓库根目录 `.env`（已被 Git 忽略，勿提交）：
 
@@ -42,9 +42,12 @@ INSURANCE_AGENT_API_KEY=your-key
 
 ```bash
 corepack pnpm --filter @renewal/web dev
+corepack pnpm dev:api
 corepack pnpm dev:insurance-agent
 ```
 
+对话链路需要三个进程同时运行：`insurance-agent`（默认 4310）→ 业务 API（默认 4300）→ Web（Vite，默认 5173，`/api` 代理到业务 API）。
+
 ## 项目状态
 
-当前仓库提供 TypeScript monorepo 工程骨架、DDD 包边界和项目设计文档，不包含业务 TypeScript 实现。后续开发应按小范围 OpenSpec change 迭代。
+当前仓库提供 TypeScript monorepo 工程骨架、DDD 包边界和项目设计文档，并已实现独立 `insurance-agent` 运行时与最小对话链路：浏览器发送文本后经业务 API 创建 run，并把 SSE 回答增量流式呈现到对话区。鉴权、会话持久化与续保/报价/核保业务尚未实现，后续开发应按小范围 OpenSpec change 迭代。

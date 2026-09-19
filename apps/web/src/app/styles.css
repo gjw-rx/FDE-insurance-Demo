@@ -136,6 +136,12 @@ body {
 
 /* ===== 对话主区 ===== */
 
+.chat-panel__messages {
+  overflow-y: auto; /* 消息增多时在面板内滚动，不撑破工作台布局 */
+  min-height: 0;
+  flex: 1; /* 占满标题与输入区之间的剩余空间，让输入区持续贴底 */
+}
+
 .chat-panel {
   background-color: var(--color-surface);
   border-radius: var(--radius-panel);

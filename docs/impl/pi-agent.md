@@ -25,11 +25,11 @@ Pi 官方提供两种适合本项目的嵌入方式：
 
 ## Web 与 Agent 对接
 
-浏览器不直接连接 Pi，也不持有模型密钥。推荐链路：
+浏览器不直接连接 Pi，也不持有模型密钥。当前链路：
 
 ```text
 React Web
-  -> 未来的业务 API（不在当前 change）
+  -> 业务 API：POST /api/chat/runs，GET /api/chat/runs/:runId/events（SSE）
 Fastify API
   -> internal HTTP: create / abort
   <- internal SSE: run events
@@ -64,6 +64,16 @@ Pi SDK 管理模型交互、单次 run 上下文、loop、只读工具、压缩�
 
 对外只映射 run、agent、answer delta、turn、tool、retry、compaction 和终态事件，并为每个 run 分配单调 cursor。thinking、prompt、文件正文、工具参数/结果和 credential 不进入 SSE 或普通日志。事件按配置限制数量和保留时间，慢消费者断开后需携带 cursor 重连。
 
+## 当前公开对话接口
+
+| Method | Path                           | 结果                                                          |
+| ------ | ------------------------------ | ------------------------------------------------------------- |
+| `GET`  | `/health/live`                 | 进程存活探针                                                  |
+| `POST` | `/api/chat/runs`               | 校验 `{ sessionId, runId, message }` 后转发创建 run，返回 202 |
+| `GET`  | `/api/chat/runs/:runId/events` | 代理 run 事件流；`id` 为 cursor，`data` 为稳定事件 JSON       |
+
+错误响应复用 contracts 的稳定错误码与 `retryable`；连接、超时与协议错误统一映射为 `SERVICE_NOT_READY`，不透出内部地址或堆栈。`sessionId` 与 `runId` 由浏览器在页面生命周期内临时生成：同一页面复用同一 `sessionId`，每次发送生成新 `runId`；首版不持久化、不恢复、不支持 SSE 断线续接与停止接口，也不提供鉴权。
+
 ## 后续业务接口（不在当前 change）
 
 | API                                                   | 作用                       |
@@ -77,7 +87,7 @@ Pi SDK 管理模型交互、单次 run 上下文、loop、只读工具、压缩�
 | `POST /api/renewals/{renewalCaseId}/quotes`           | 发起报价                   |
 | `POST /api/renewals/{renewalCaseId}/underwriting`     | 服务端门禁后提交核保       |
 
-以上接口尚未实现。后续 change 需要把 Agent 事件转换为稳定业务事件；前端不得解析 Agent 文本来判断 `canSubmit`、报价或核保状态。
+以上会话与续保接口尚未实现（除上方已列出的对话接口外）。后续 change 需要把 Agent 事件转换为稳定业务事件；前端不得解析 Agent 文本来判断 `canSubmit`、报价或核保状态。
 
 ## sessionId 设计
 

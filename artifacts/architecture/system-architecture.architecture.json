@@ -30,7 +30,7 @@
       "id": "api",
       "type": "backend",
       "label": "业务 API",
-      "sublabel": "鉴权 / 业务用例 / 对外接口",
+      "sublabel": "对话公开接口 / 业务用例（后续）",
       "tag": "Fastify + TypeScript",
       "pos": [380, 350],
       "size": [180, 72]
@@ -144,8 +144,8 @@
       "id": "webApi",
       "from": "web",
       "to": "api",
-      "label": "未来业务 API",
-      "variant": "dashed",
+      "label": "对话 API 与 SSE 事件",
+      "variant": "emphasis",
       "labelDy": 60
     },
     {
@@ -207,8 +207,8 @@
       "dot": "cyan",
       "title": "当前 change",
       "items": [
-        "insurance-agent 独立启动、配置和部署",
-        "业务 API 仅通过内部 HTTP/SSE typed client 调用"
+        "对话链路：Web 经业务 API 创建 run 并订阅 SSE",
+        "insurance-agent 独立启动、配置和部署"
       ]
     },
     {
@@ -224,7 +224,7 @@
       "title": "明确非目标",
       "items": [
         "当前不实现续保、报价、核保、材料或问答业务",
-        "不注册业务 custom tools，也不新增浏览器路由"
+        "对话不持久化、无鉴权与断线重连，不注册业务 custom tools"
       ]
     }
   ]

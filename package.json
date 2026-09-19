@@ -12,12 +12,20 @@
     "dev": "corepack pnpm -r --parallel --stream dev",
     "docs:check": "node .agents/check-docs.mjs",
     "dev:insurance-agent": "corepack pnpm --filter @renewal/insurance-agent dev",
+    "dev:api": "corepack pnpm --filter @renewal/api dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "start:insurance-agent": "corepack pnpm --filter @renewal/insurance-agent start",
+    "start:api": "corepack pnpm --filter @renewal/api start",
     "test": "corepack pnpm -r --if-present test",
     "typecheck": "corepack pnpm -r --if-present typecheck",
-    "workspace:list": "corepack pnpm list --recursive --depth -1"
+    "workspace:list": "corepack pnpm list --recursive --depth -1",
+    "verify:api": "node .agents/harness/verify.mjs api",
+    "verify:web": "node .agents/harness/verify.mjs web",
+    "verify:docs": "node .agents/harness/verify.mjs docs",
+    "verify:harness": "node .agents/harness/verify.mjs harness",
+    "verify:change": "node .agents/harness/verify.mjs change",
+    "harness:install": "node .agents/harness/install.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

@@ -47,7 +47,7 @@ apps/api ---> packages/application ---> packages/domain
 - `insurance-agent` 是独立进程，只依赖 Pi SDK 与 contracts；`api` 通过内部 HTTP/SSE typed client 调用，不在自身进程创建 Pi runtime。
 - `web` 只消费 contracts，不直接使用领域实体或 Pi SDK。
 
-当前 `integrate-insurance-agent-runtime` change 只实现独立 Pi runtime 与内部统一接口。它不实现 Renewal、Material、Knowledge 等业务用例，不注册保险业务工具，也不新增浏览器路由。
+当前已实现独立 Pi runtime、内部统一接口，以及最小对话链路（`connect-chat-agent-streaming` change）：浏览器经业务 API `POST /api/chat/runs` 创建 run、经 `GET /api/chat/runs/:runId/events` 订阅 SSE。仍不实现 Renewal、Material、Knowledge 等业务用例，不注册保险业务工具，也不提供鉴权、会话持久化与断线续接。
 
 ## 两条执行路径
 
@@ -93,6 +93,8 @@ apps/api ---> packages/application ---> packages/domain
 - 可交互 HTML：[system-architecture.html](../../artifacts/architecture/system-architecture.html)
 - 类型与质量配置：architecture / showcase
 - 图中展示用户与 React Web、业务 API、用例路由、续保和快速问答路径，以及 Pi Agent Runtime、受控保险业务工具、保险公司接口、知识库、业务数据库和材料对象存储之间的边界与连接。
+- 实线表示已实现的连接（含 Web → 业务 API 的对话 API 与 SSE 事件），虚线表示后续 change 的用例；底部卡片区分“当前 change”“Pi 安全边界”与“明确非目标”。
 - Archify showcase 校验：9 项检查全部通过，composition 错误和警告均为 0。
-- 自动浏览器证据：[检查报告](../../artifacts/architecture/system-architecture.visual-check.json) · [截图总览](../../artifacts/architecture/system-architecture.visual-check.html)。Chrome 检查在 1440×900、1600×1000、1920×1080 和 2048×1320 视口通过，无溢出且可读性检查通过；截图覆盖 1440×900 与 2048×1320 的浅色和深色主题。
-- 人工截图抽查：已检查 1440×900 浅色、1440×900 深色和 2048×1320 浅色截图，未见明显遮挡，主要架构路径和说明卡片清晰可读。
+- 图源 SHA-256 `cddcdb2b9cac52a863d472c18e4b19c1d668ce8bb49be4ebb785f55eefc305e2`（5480 字节），HTML SHA-256 `f18afaa4de9c74af8261962590305fde6995252158d68dd2f9d6967d9eeedb00`（815628 字节）。
+- 自动浏览器证据：[检查报告](../../artifacts/architecture/system-architecture.visual-check.json) · [截图总览](../../artifacts/architecture/system-architecture.visual-check.html)。Chrome 检查在 1440×900 与 2048×1320 视口通过，`scrollWidth/scrollHeight` 均未超出视口，可读性检查通过；截图覆盖两个视口的浅色和深色主题。
+- 人工截图抽查：已检查 1440×900 浅色截图，未见节点遮挡、关系线穿越或标签裁切；业务 API 与 insurance-agent 节点文案与本次实现一致。

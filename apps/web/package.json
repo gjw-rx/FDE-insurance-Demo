@@ -6,7 +6,9 @@
   "description": "React + Vite 车险续保工作台",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@renewal/contracts": "workspace:*",
@@ -18,6 +20,7 @@
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.1",
     "typescript": "catalog:",
-    "vite": "8.3.0"
+    "vite": "8.3.0",
+    "vitest": "catalog:"
   }
 }

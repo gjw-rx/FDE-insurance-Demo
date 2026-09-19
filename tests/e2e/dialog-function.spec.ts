@@ -124,7 +124,30 @@ test.describe("对话输入区本地交互", () => {
     await expect(send).toBeDisabled();
   });
 
-  test("输入内容后发送并清空：不新增消息气泡", async ({ page }) => {
+  test("输入内容后发送并清空：追加用户消息并产生一次业务 API 请求", async ({
+    page,
+  }) => {
+    // route mock：记录 POST，返回挂起 SSE，避免依赖后端。
+    const posts: string[] = [];
+    await page.route("**/api/chat/runs", async (route) => {
+      posts.push(route.request().postData() ?? "");
+      await route.fulfill({
+        status: 202,
+        contentType: "application/json",
+        body: JSON.stringify({
+          agentName: "insurance-agent",
+          sessionId: "session-1",
+          runId: "run-1",
+          status: "accepted",
+          createdAt: "2026-09-15T00:00:00.000Z",
+        }),
+      });
+    });
+    await page.route("**/api/chat/runs/*/events", async () => {
+      // 挂起：流保持进行中，仅验证发送行为本身。
+      await new Promise(() => undefined);
+    });
+
     await page.goto("/");
 
     const input = page.getByPlaceholder("输入您想咨询的车险问题...");
@@ -135,8 +158,12 @@ test.describe("对话输入区本地交互", () => {
     await send.click();
 
     await expect(input).toHaveValue("");
+    // 用户消息追加：欢迎 + 用户消息 = 2 条
+    await expect(page.locator(".chat-message")).toHaveCount(2);
+    await expect(page.getByText("我的车险续保要多少钱？")).toBeVisible();
+    // 活动 run 期间发送按钮不可用
     await expect(send).toBeDisabled();
-    await expect(page.locator(".chat-message")).toHaveCount(1);
+    expect(posts).toHaveLength(1);
   });
 
   test("选择图片或 PDF 文件：不出现错误提示", async ({ page }) => {
@@ -176,7 +203,7 @@ test.describe("对话输入区本地交互", () => {
     await expect(page.locator(".chat-composer__error")).toHaveCount(0);
   });
 
-  test("输入区不发起网络请求：输入、发送与选择文件均在前端本地完成", async ({
+  test("输入区网络边界：文本发送只调业务 API，文件选择无上传请求", async ({
     page,
   }) => {
     const externalRequests: string[] = [];
@@ -185,6 +212,24 @@ test.describe("对话输入区本地交互", () => {
       if (url.origin !== DEV_SERVER_ORIGIN) {
         externalRequests.push(request.url());
       }
+    });
+    const posts: string[] = [];
+    await page.route("**/api/chat/runs", async (route) => {
+      posts.push(route.request().postData() ?? "");
+      await route.fulfill({
+        status: 202,
+        contentType: "application/json",
+        body: JSON.stringify({
+          agentName: "insurance-agent",
+          sessionId: "session-1",
+          runId: "run-1",
+          status: "accepted",
+          createdAt: "2026-09-15T00:00:00.000Z",
+        }),
+      });
+    });
+    await page.route("**/api/chat/runs/*/events", async () => {
+      await new Promise(() => undefined);
     });
 
     await page.goto("/");
@@ -197,7 +242,9 @@ test.describe("对话输入区本地交互", () => {
       .setInputFiles(IMAGE_FIXTURE);
 
     await expect(input).toHaveValue("");
-    await expect(page.locator(".chat-message")).toHaveCount(1);
+    await expect(page.locator(".chat-message")).toHaveCount(2);
+    // 文本发送只产生同源业务 API 请求，文件选择不产生上传
+    expect(posts).toHaveLength(1);
     expect(externalRequests).toEqual([]);
   });
 });

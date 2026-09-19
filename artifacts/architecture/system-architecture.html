@@ -5166,7 +5166,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
         <!-- Connection paths (before components for correct z-order) -->
         <path data-edge-from="customer" data-edge-to="web" data-edge-label="HTTPS" data-edge-key="0" data-edge-id="customerWeb" data-composition-points="140,386;175,386" d="M 140 386 L 175 386" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="web" data-edge-to="api" data-edge-label="未来业务 API" data-edge-key="1" data-edge-id="webApi" data-composition-points="335,386;380,386" d="M 335 386 L 380 386" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="web" data-edge-to="api" data-edge-label="对话 API 与 SSE 事件" data-edge-key="1" data-edge-id="webApi" data-composition-points="335,386;380,386" d="M 335 386 L 380 386" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="api" data-edge-to="agent" data-edge-label="HTTP / SSE" data-edge-key="2" data-edge-id="apiAgent" data-composition-points="560,386;584,386;584,404;616,404;616,388;640,388" d="M 560 386 L 576 386 Q 584 386 584 394 L 584 396 Q 584 404 592 404 L 608 404 Q 616 404 616 396 L 616 396 Q 616 388 624 388 L 640 388" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="agent" data-edge-to="model" data-edge-label="模型流式调用" data-edge-key="3" data-edge-id="agentModel" data-composition-points="845,381;1080,381" d="M 845 381 L 1080 381" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="agent" data-edge-to="readonlyTools" data-edge-label="SDK tool call" data-edge-key="4" data-edge-id="agentTools" data-composition-points="845,395;860,395;860,543;875,543" d="M 845 395 L 852.5 395 Q 860 395 860 402.5 L 860 535.5 Q 860 543 867.5 543 L 875 543" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
@@ -5203,15 +5203,15 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <text data-detail="fine" x="255" y="414" class="t-frontend" font-size="7" text-anchor="middle">React + TypeScript + Vite</text>
         </g>
 
-        <g id="node-api" data-node-id="api" data-node-label="业务 API" tabindex="0" role="button" aria-label="聚焦业务 API，鉴权 / 业务用例 / 对外接口, 业务服务与后续能力" aria-pressed="false" data-node-kind="backend" data-node-sublabel="鉴权 / 业务用例 / 对外接口" data-node-tag="Fastify + TypeScript" data-node-context="业务服务与后续能力">
-          <title>业务 API · 鉴权 / 业务用例 / 对外接口 · 业务服务与后续能力 · Fastify + TypeScript</title>
+        <g id="node-api" data-node-id="api" data-node-label="业务 API" tabindex="0" role="button" aria-label="聚焦业务 API，对话公开接口 / 业务用例（后续）, 业务服务与后续能力" aria-pressed="false" data-node-kind="backend" data-node-sublabel="对话公开接口 / 业务用例（后续）" data-node-tag="Fastify + TypeScript" data-node-context="业务服务与后续能力">
+          <title>业务 API · 对话公开接口 / 业务用例（后续） · 业务服务与后续能力 · Fastify + TypeScript</title>
           <rect x="380" y="350" width="180" height="72" rx="6" class="c-mask"/>
           <rect x="380" y="350" width="180" height="72" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(386 356) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="470" y="384" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">业务 API</text>
-        <text data-detail="context" x="470" y="400" class="t-muted" font-size="9" text-anchor="middle">鉴权 / 业务用例 / 对外接口</text>
+        <text data-detail="context" x="470" y="400" class="t-muted" font-size="9" text-anchor="middle">对话公开接口 / 业务用例（后续）</text>
         <text data-detail="fine" x="470" y="414" class="t-backend" font-size="7" text-anchor="middle">Fastify + TypeScript</text>
         </g>
 
@@ -5320,9 +5320,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <rect x="140.5" y="366" width="34" height="14" rx="3" class="c-mask"/>
           <text x="157.5" y="376" class="t-backend" font-size="8" text-anchor="middle">HTTPS</text>
         </g>
-        <g data-detail="context" data-edge-from="web" data-edge-to="api" data-edge-label="未来业务 API" data-edge-key="1" data-edge-id="webApi">
-          <rect x="323.7" y="426" width="67.6" height="14" rx="3" class="c-mask"/>
-          <text x="357.5" y="436" class="t-messagebus" font-size="8" text-anchor="middle">未来业务 API</text>
+        <g data-detail="context" data-edge-from="web" data-edge-to="api" data-edge-label="对话 API 与 SSE 事件" data-edge-key="1" data-edge-id="webApi">
+          <rect x="304.5" y="426" width="106" height="14" rx="3" class="c-mask"/>
+          <text x="357.5" y="436" class="t-backend" font-size="8" text-anchor="middle">对话 API 与 SSE 事件</text>
         </g>
         <g data-detail="context" data-edge-from="api" data-edge-to="agent" data-edge-label="HTTP / SSE" data-edge-key="2" data-edge-id="apiAgent">
           <rect x="571" y="460" width="58" height="14" rx="3" class="c-mask"/>
@@ -5590,8 +5590,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <h3>当前 change</h3>
         </div>
         <ul>
+          <li>&bull; 对话链路：Web 经业务 API 创建 run 并订阅 SSE</li>
           <li>&bull; insurance-agent 独立启动、配置和部署</li>
-          <li>&bull; 业务 API 仅通过内部 HTTP/SSE typed client 调用</li>
         </ul>
       </div>
 
@@ -5613,7 +5613,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </div>
         <ul>
           <li>&bull; 当前不实现续保、报价、核保、材料或问答业务</li>
-          <li>&bull; 不注册业务 custom tools，也不新增浏览器路由</li>
+          <li>&bull; 对话不持久化、无鉴权与断线重连，不注册业务 custom tools</li>
         </ul>
       </div>
     </div>
