@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 // dialog-function 验收测试：覆盖 delta spec workbench-shell 的新增与修改场景。
 // 输入区仅本地交互，不发起任何网络请求；越界类型场景用 setInputFiles 向隐藏 input 注入 fixture 文件。
@@ -9,6 +9,30 @@ const DEV_SERVER_ORIGIN = "http://localhost:5173";
 const IMAGE_FIXTURE = "tests/e2e/fixtures/driving-license.png";
 const PDF_FIXTURE = "tests/e2e/fixtures/id-card.pdf";
 const TEXT_FIXTURE = "tests/e2e/fixtures/notes.txt";
+
+// 键盘交互用例共用的 API 替身：记录 POST 并挂起 SSE，不依赖后端。
+async function mockChatApi(page: Page) {
+  const posts: string[] = [];
+  await page.route("**/api/chat/runs", async (route) => {
+    posts.push(route.request().postData() ?? "");
+    await route.fulfill({
+      status: 202,
+      contentType: "application/json",
+      body: JSON.stringify({
+        agentName: "insurance-agent",
+        sessionId: "session-1",
+        runId: "run-1",
+        status: "accepted",
+        createdAt: "2026-09-15T00:00:00.000Z",
+      }),
+    });
+  });
+  await page.route("**/api/chat/runs/*/events", async () => {
+    // 挂起：流保持进行中，只验证键盘提交行为本身。
+    await new Promise(() => undefined);
+  });
+  return posts;
+}
 
 test.describe("工作台首屏区域结构（含对话输入区）", () => {
   test("页面加载完成：四区域与底部输入区展示，无模拟浏览器工具栏", async ({
@@ -109,6 +133,69 @@ test.describe("对话输入区结构与文件类型提示", () => {
     await expect(page.locator(".chat-message__text")).toContainText(
       "您好！我是智能车险助手，很高兴为您服务。",
     );
+  });
+});
+
+test.describe("对话输入区键盘交互", () => {
+  test("按 Enter 发送：清空输入、追加用户消息并产生一次请求", async ({
+    page,
+  }) => {
+    const posts = await mockChatApi(page);
+    await page.goto("/");
+
+    const input = page.getByPlaceholder("输入您想咨询的车险问题...");
+    await input.fill("交强险和商业险有什么区别？");
+    await input.press("Enter");
+
+    await expect(input).toHaveValue("");
+    await expect(page.getByText("交强险和商业险有什么区别？")).toBeVisible();
+    expect(posts).toHaveLength(1);
+  });
+
+  test("Shift+Enter 换行：输入保留多行且不发送", async ({ page }) => {
+    const posts = await mockChatApi(page);
+    await page.goto("/");
+
+    const input = page.getByPlaceholder("输入您想咨询的车险问题...");
+    await input.fill("第一行");
+    await input.press("Shift+Enter");
+    await input.pressSequentially("第二行");
+
+    await expect(input).toHaveValue("第一行\n第二行");
+    // 仅保留欢迎消息，未追加用户消息
+    await expect(page.locator(".chat-message")).toHaveCount(1);
+    expect(posts).toHaveLength(0);
+  });
+
+  test("空输入或纯空白时按 Enter 不发送", async ({ page }) => {
+    const posts = await mockChatApi(page);
+    await page.goto("/");
+
+    const input = page.getByPlaceholder("输入您想咨询的车险问题...");
+    await input.press("Enter");
+    await input.fill("   ");
+    await input.press("Enter");
+
+    await expect(page.locator(".chat-message")).toHaveCount(1);
+    expect(posts).toHaveLength(0);
+  });
+
+  test("输入法组合态按 Enter：只上屏不发送", async ({ page }) => {
+    const posts = await mockChatApi(page);
+    await page.goto("/");
+
+    const input = page.getByPlaceholder("输入您想咨询的车险问题...");
+    await input.fill("车险");
+    // 模拟候选未上屏时的 Enter：isComposing 为真，必须被忽略。
+    await input.dispatchEvent("keydown", {
+      key: "Enter",
+      isComposing: true,
+      bubbles: true,
+    });
+
+    await expect(input).toHaveValue("车险");
+    await expect(page.locator(".chat-message")).toHaveCount(1);
+    expect(posts).toHaveLength(0);
   });
 });
 
