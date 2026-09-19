@@ -1,75 +1,36 @@
 ## 前端开发强制规则
 
-- 凡涉及 `apps/web/**` 或 `tests/e2e/**` 的分析、设计、编码、重构、测试与评审，开始工作前**必须先阅读并遵守** [`.agents/rules/fronted-development.md`](.agents/rules/fronted-development.md)（规则名称：`fronted开发规范`）。
+- 凡涉及 `apps/web/**` 或 `tests/e2e/**` 的分析、设计、编码、重构、测试与评审，开始工作前**必须先获取并遵守当前版本** [`.agents/rules/fronted-development.md`](.agents/rules/fronted-development.md)（规则名称：`fronted开发规范`）。若宿主已完整注入当前版本，不重复读取；新会话、文件变化或版本不确定时重新读取。
 - 该规则是本项目的前端目录职责、依赖方向、React/TypeScript 实现和验证门禁基准；不得把业务组件、业务数据或通用 UI 继续堆放到 `apps/web/src/app/`。
 - 若前端规则与本文其他要求存在冲突，以本文为准；OpenSpec、文档同步和 Git 规范不因引用前端规则而豁免。
 
-## 1.Think Before Coding
+## 1. 执行与澄清
 
-- [ ]
+- 下一步明确、可逆且在授权范围内时直接执行；缺少事实先读取证据。
+- 只有影响范围、权限、外部行为或验收条件的歧义才询问；局部实现细节自行选择并记录必要假设。
+- 普通编译错误、测试失败和已知工具兼容问题自行修复，不作为等待用户的理由。外部凭据/权限缺失或需要改变已确认范围时报告阻塞，继续独立工作。
+- 多步骤任务先给简短计划与验收条件；不要为机械读取、格式化和状态更新展开长篇推演。
 
-Before implementing:
+## 2. 修改边界
 
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them - don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
+- 最小实现，不新增未要求的功能、依赖和预防性抽象；只改与当前任务直接相关的内容。
+- 保留用户未提交改动，不顺手修复无关既有缺陷；清理本次修改产生的孤立代码。
+- 代码修改前读取相关实现；完整内容已在上下文且文件未变化时不重读。编辑冲突或外部变化时按需刷新相关范围。
 
-## 2. Simplicity First
+## 3. 验证与反馈
 
-**Minimum code that solves the problem. Nothing speculative.**
+- 实现中运行相关检查，阶段结束执行全量门禁；同一输入版本的通过结果可覆盖多个任务，不为逐项勾选重复执行。
+- 使用 `corepack pnpm verify:api`、`verify:web`、`verify:change`；Harness 自身使用 `verify:harness`。完整日志、退出码和摘要保存在 `.runtime/harness/`。
+- 为获取错误详情读取已保存日志，不重跑测试；相同失败两轮无进展时补充新证据或改变策略。仅在有明确环境/诊断变化时使用 `--retry-reason`，不得编造理由绕过保护。
+- 同一非阻断诊断不重复解释；分析工具不可用代表未知，不代表检查通过。真实错误和门禁失败仍须处理。
+- 仅清理由本次任务启动的进程，禁止宽泛 `pkill -f`；测试显式使用 fake 服务地址，不能借用真实 Agent。
 
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
+## 4. 推理与上下文
 
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
-
-## 3. Surgical Changes
-
-**Touch only what you must. Clean up only your own mess.**
-
-When editing existing code:
-
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- If you notice unrelated dead code, mention it - don't delete it.
-
-When your changes create orphans:
-
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
-
-The test: Every changed line should trace directly to the user's request.
-
-## 4. Goal-Driven Execution
-
-**Define success criteria. Loop until verified.**
-
-Transform tasks into verifiable goals:
-
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
-
-For multi-step tasks, state a brief plan:
-
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
-
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
-
----
-
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
-
----
+- 常规实现默认 medium；确定性读取/机械操作可用 low；跨服务语义、竞态或连续修复失败再用 high。Pi 可调用 `harness_effort` 显式切换，完成难点后恢复 medium；不按工具名称自动猜测难度。
+- 用户显式指定的模型/思考等级优先；不要求或输出内部思考过程，只提供必要的结论、依据和验证结果。
+- 阶段交接保留目标、约束、文件、当前失败、已排除假设和证据路径；长会话按需压缩，不丢失未解决问题的证据。
+- 完整流程以 [AI 工程工作流](docs/engineering/ai-workflow.md) 为准，同一规则不在各层重复解释。
 
 ## 5. 项目 AI 协作与任务管理
 

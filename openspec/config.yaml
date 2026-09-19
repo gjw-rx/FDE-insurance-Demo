@@ -29,6 +29,6 @@ operations:
       - 依赖、服务或架构发生变化时，在同一 change 内同步对应文档和 artifacts。
   archive:
     guidance:
-      - 归档前运行 corepack pnpm docs:check、openspec validate --strict 以及 change 测试计划中的验证命令。
+      - 归档前确认当前实现版本已有测试计划要求的通过证据；可复用未受变化影响的结果。归档后重新运行 docs:check、format:check 和 OpenSpec 校验。
       - 确认 docs/testing/<change-name>.md 已记录实际结果和证据，所有未完成项均未被误勾选。
       - 同步主 specs 后归档，并把 feature 与 testing 文档中的活动 change 链接更新为归档路径。

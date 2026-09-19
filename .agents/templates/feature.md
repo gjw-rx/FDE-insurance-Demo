@@ -16,7 +16,7 @@
 
 ## OpenSpec 关联
 
-- 主 spec：<!-- 链接 `../../openspec/specs/<feature-name>/spec.md`；尚未生成时写明待当前 change 归档生成。 -->
+- 主 spec：<!-- 链接 `../../openspec/specs/<feature-name>/spec.md`；尚未生成时用行内代码写路径并标注待归档，不能创建指向不存在文件的 Markdown 链接。 -->
 - 活动 change：<!-- 链接 `../../openspec/changes/<change-name>/`。 -->
 - Delta spec：<!-- 链接对应 change 下的 spec。 -->
 - 测试计划：<!-- 链接 `../testing/<change-name>.md`。 -->
