@@ -58,7 +58,7 @@ describe("仓库默认配置", () => {
     expect(config.agentName).toBe("insurance-agent");
     expect(config.model).toEqual({
       provider: "opencode-go",
-      id: "deepseek-flash",
+      id: "deepseek-v4.1-flash",
       thinkingLevel: "high",
       apiKeyEnv: "INSURANCE_AGENT_API_KEY",
       catalogRefreshTimeoutMs: 15_000,
