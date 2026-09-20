@@ -1758,6 +1758,673 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "s2kH3",
+      "x": 1332,
+      "y": 0,
+      "name": "保险助手登录页·云境版",
+      "clip": true,
+      "width": 1440,
+      "height": 900,
+      "fill": {
+        "type": "gradient",
+        "gradientType": "linear",
+        "enabled": true,
+        "rotation": 135,
+        "size": {
+          "height": 1
+        },
+        "colors": [
+          {
+            "color": "#EAF3FF",
+            "position": 0
+          },
+          {
+            "color": "#FBFDFF",
+            "position": 0.46
+          },
+          {
+            "color": "#F2FFFC",
+            "position": 1
+          }
+        ]
+      },
+      "layout": "none",
+      "children": [
+        {
+          "type": "ellipse",
+          "id": "bw5C9",
+          "x": -120,
+          "y": 40,
+          "name": "左侧蓝色柔光",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "radial",
+            "enabled": true,
+            "rotation": 0,
+            "size": {
+              "width": 1,
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#7CB8FF66",
+                "position": 0
+              },
+              {
+                "color": "#CFE4FF2B",
+                "position": 0.62
+              },
+              {
+                "color": "#FFFFFF00",
+                "position": 1
+              }
+            ]
+          },
+          "width": 560,
+          "height": 560,
+          "effect": {
+            "type": "blur",
+            "radius": 0,
+            "enabled": false
+          }
+        },
+        {
+          "type": "ellipse",
+          "id": "aiGmu",
+          "x": 1040,
+          "y": 300,
+          "name": "右侧青色柔光",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "radial",
+            "enabled": true,
+            "rotation": 0,
+            "size": {
+              "width": 1,
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#5DE3D35C",
+                "position": 0
+              },
+              {
+                "color": "#CAF9F22B",
+                "position": 0.62
+              },
+              {
+                "color": "#FFFFFF00",
+                "position": 1
+              }
+            ]
+          },
+          "width": 560,
+          "height": 560,
+          "effect": {
+            "type": "blur",
+            "radius": 0,
+            "enabled": false
+          }
+        },
+        {
+          "type": "ellipse",
+          "id": "yASzp",
+          "x": 420,
+          "y": 630,
+          "name": "底部淡紫柔光",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "radial",
+            "enabled": true,
+            "rotation": 0,
+            "size": {
+              "width": 1,
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#859BFF29",
+                "position": 0
+              },
+              {
+                "color": "#FFFFFF00",
+                "position": 1
+              }
+            ]
+          },
+          "width": 600,
+          "height": 320,
+          "effect": {
+            "type": "blur",
+            "radius": 0,
+            "enabled": false
+          }
+        },
+        {
+          "type": "frame",
+          "id": "Mf45Q",
+          "x": 555,
+          "y": 62,
+          "name": "品牌标识",
+          "width": 330,
+          "height": 82,
+          "gap": 16,
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Mv7wr",
+              "name": "盾牌标识底座",
+              "width": 58,
+              "height": 58,
+              "fill": {
+                "type": "gradient",
+                "gradientType": "linear",
+                "enabled": true,
+                "rotation": 145,
+                "size": {
+                  "height": 1
+                },
+                "colors": [
+                  {
+                    "color": "#174BC7",
+                    "position": 0
+                  },
+                  {
+                    "color": "#32C9D8",
+                    "position": 1
+                  }
+                ]
+              },
+              "cornerRadius": 18,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#1F64D52E",
+                "offset": {
+                  "x": 0,
+                  "y": 10
+                },
+                "blur": 22
+              },
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "ZKOAb",
+                  "name": "安全保障图标",
+                  "width": 30,
+                  "height": 30,
+                  "icon": "shield-check",
+                  "library": "lucide",
+                  "fill": "#FFFFFF"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ca7o8",
+              "name": "品牌文字",
+              "layout": "vertical",
+              "gap": 2,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "zjjz3",
+                  "name": "品牌中文名",
+                  "fill": "$login-deep",
+                  "content": "智保助手",
+                  "fontFamily": "$login-font",
+                  "fontSize": 25,
+                  "fontWeight": "700",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "S6PW0r",
+                  "name": "品牌英文名",
+                  "fill": "$login-primary",
+                  "content": "INSURANCE COPILOT",
+                  "fontFamily": "$login-font",
+                  "fontSize": 10,
+                  "fontWeight": "600",
+                  "letterSpacing": 2.1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "jKZkk",
+          "x": 450,
+          "y": 180,
+          "name": "登录卡片",
+          "width": 540,
+          "height": 580,
+          "fill": "$login-card",
+          "cornerRadius": 28,
+          "stroke": "#FFFFFF",
+          "strokeWidth": 1,
+          "effect": [
+            {
+              "type": "background_blur",
+              "radius": 24
+            },
+            {
+              "type": "shadow",
+              "shadowType": "outer",
+              "color": "#315B9C24",
+              "offset": {
+                "x": 0,
+                "y": 24
+              },
+              "blur": 55
+            }
+          ],
+          "layout": "vertical",
+          "gap": 26,
+          "padding": [
+            42,
+            48
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "X4aQy",
+              "name": "登录标题区",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "tOpFX",
+                  "name": "欢迎标题",
+                  "fill": "$login-text",
+                  "content": "欢迎回来",
+                  "fontFamily": "$login-font",
+                  "fontSize": 30,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "ozyYU",
+                  "name": "登录副标题",
+                  "fill": "$login-muted",
+                  "content": "登录后继续使用您的智能保险服务",
+                  "fontFamily": "$login-font",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "k3NIV3",
+              "name": "登录表单",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ABeZk",
+                  "name": "用户名输入区",
+                  "width": "fill_container",
+                  "height": 58,
+                  "fill": "#F8FAFD",
+                  "cornerRadius": 14,
+                  "stroke": "$login-line",
+                  "strokeWidth": 1,
+                  "gap": 13,
+                  "padding": [
+                    0,
+                    18
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "hRuhT",
+                      "name": "用户名输入区图标",
+                      "width": 20,
+                      "height": 20,
+                      "icon": "user-round",
+                      "library": "lucide",
+                      "fill": "#8EA0BA"
+                    },
+                    {
+                      "type": "text",
+                      "id": "kgLMl",
+                      "name": "用户名输入区提示",
+                      "fill": "#98A5B8",
+                      "content": "请输入用户名或手机号",
+                      "fontFamily": "$login-font",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "YxLNH",
+                  "name": "密码输入区",
+                  "width": "fill_container",
+                  "height": 58,
+                  "fill": "#F8FAFD",
+                  "cornerRadius": 14,
+                  "stroke": "$login-line",
+                  "strokeWidth": 1,
+                  "gap": 13,
+                  "padding": [
+                    0,
+                    18
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "r0xds1",
+                      "name": "密码输入区图标",
+                      "width": 20,
+                      "height": 20,
+                      "icon": "lock-keyhole",
+                      "library": "lucide",
+                      "fill": "#8EA0BA"
+                    },
+                    {
+                      "type": "text",
+                      "id": "SzsUT",
+                      "name": "密码输入区提示",
+                      "fill": "#98A5B8",
+                      "content": "请输入登录密码",
+                      "fontFamily": "$login-font",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "v0s5vb",
+                      "name": "密码输入弹性间隔",
+                      "width": "fill_container",
+                      "height": 1
+                    },
+                    {
+                      "type": "icon",
+                      "id": "zOFlh",
+                      "name": "显示密码",
+                      "width": 19,
+                      "height": 19,
+                      "icon": "eye-off",
+                      "library": "lucide",
+                      "fill": "#A6B1C2"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "IpV8U",
+              "name": "登录辅助操作",
+              "width": "fill_container",
+              "height": 24,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "XDiQk",
+                  "name": "记住登录状态",
+                  "gap": 9,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "cornerRadius": 5,
+                      "id": "MgZRh",
+                      "name": "记住登录复选框",
+                      "fill": "#FFFFFF",
+                      "width": 18,
+                      "height": 18,
+                      "stroke": "#C9D5E6",
+                      "strokeWidth": 1
+                    },
+                    {
+                      "type": "text",
+                      "id": "IR7nI",
+                      "name": "记住登录文字",
+                      "fill": "#5B6780",
+                      "content": "记住我",
+                      "fontFamily": "$login-font",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "qO4od",
+                  "name": "忘记密码链接",
+                  "fill": "$login-primary",
+                  "content": "忘记密码？",
+                  "fontFamily": "$login-font",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "nK0nx",
+              "name": "协议确认",
+              "width": "fill_container",
+              "gap": 9,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "rectangle",
+                  "cornerRadius": 5,
+                  "id": "b43Z3G",
+                  "name": "协议复选框",
+                  "fill": "#FFFFFF",
+                  "width": 18,
+                  "height": 18,
+                  "stroke": "#C9D5E6",
+                  "strokeWidth": 1
+                },
+                {
+                  "type": "frame",
+                  "id": "lWJ2C",
+                  "name": "协议文字组合",
+                  "gap": 4,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "nJcAQ",
+                      "name": "协议前缀",
+                      "fill": "#6E7A90",
+                      "content": "我已阅读并同意",
+                      "fontFamily": "$login-font",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "PAFJU",
+                      "name": "服务条款链接",
+                      "fill": "$login-deep",
+                      "content": "《服务条款》",
+                      "fontFamily": "$login-font",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "RS8h6",
+                      "name": "与字",
+                      "fill": "#6E7A90",
+                      "content": "和",
+                      "fontFamily": "$login-font",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "NMUeb",
+                      "name": "隐私协议链接",
+                      "fill": "$login-deep",
+                      "content": "《隐私协议》",
+                      "fontFamily": "$login-font",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "CGoMm",
+              "name": "主登录按钮",
+              "width": "fill_container",
+              "height": 58,
+              "fill": {
+                "type": "gradient",
+                "gradientType": "linear",
+                "enabled": true,
+                "rotation": 90,
+                "size": {
+                  "height": 1
+                },
+                "colors": [
+                  {
+                    "color": "#1F5FE8",
+                    "position": 0
+                  },
+                  {
+                    "color": "#367CF2",
+                    "position": 0.55
+                  },
+                  {
+                    "color": "#2ABED1",
+                    "position": 1
+                  }
+                ]
+              },
+              "cornerRadius": 16,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#2563EB3D",
+                "offset": {
+                  "x": 0,
+                  "y": 12
+                },
+                "blur": 24
+              },
+              "gap": 10,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "R7hfCB",
+                  "name": "登录按钮文字",
+                  "fill": "#FFFFFF",
+                  "content": "登 录",
+                  "fontFamily": "$login-font",
+                  "fontSize": 17,
+                  "fontWeight": "700",
+                  "letterSpacing": 3
+                },
+                {
+                  "type": "icon",
+                  "id": "GGXgu",
+                  "name": "登录箭头",
+                  "width": 19,
+                  "height": 19,
+                  "icon": "arrow-right",
+                  "library": "lucide",
+                  "fill": "#FFFFFF"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "hvx6G",
+              "name": "安全提示",
+              "gap": 7,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "VN2AD",
+                  "name": "安全锁图标",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "lock",
+                  "library": "lucide",
+                  "fill": "#8CA0B8"
+                },
+                {
+                  "type": "text",
+                  "id": "vQf0T",
+                  "name": "安全提示文字",
+                  "fill": "#8CA0B8",
+                  "content": "数据加密传输，保障您的账户安全",
+                  "fontFamily": "$login-font",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "qbtdJ",
+          "x": 570,
+          "y": 790,
+          "name": "注册入口",
+          "width": 300,
+          "height": 28,
+          "gap": 7,
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "H0boDZ",
+              "name": "注册提示",
+              "fill": "#6D7890",
+              "content": "还没有账号？",
+              "fontFamily": "$login-font",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "zLub1",
+              "name": "立即注册链接",
+              "fill": "$login-primary",
+              "content": "立即注册",
+              "fontFamily": "$login-font",
+              "fontSize": 14,
+              "fontWeight": "700"
+            }
+          ]
+        }
+      ]
     }
   ],
   "variables": {
@@ -1790,6 +2457,42 @@
       "value": "#5ECAC1"
     },
     "font": {
+      "type": "string",
+      "value": "Inter"
+    },
+    "login-bg": {
+      "type": "color",
+      "value": "#F7FAFF"
+    },
+    "login-card": {
+      "type": "color",
+      "value": "#FFFFFFF2"
+    },
+    "login-primary": {
+      "type": "color",
+      "value": "#2563EB"
+    },
+    "login-deep": {
+      "type": "color",
+      "value": "#123A8C"
+    },
+    "login-text": {
+      "type": "color",
+      "value": "#17233C"
+    },
+    "login-muted": {
+      "type": "color",
+      "value": "#7B879F"
+    },
+    "login-line": {
+      "type": "color",
+      "value": "#DDE6F3"
+    },
+    "login-cyan": {
+      "type": "color",
+      "value": "#36C5D8"
+    },
+    "login-font": {
       "type": "string",
       "value": "Inter"
     }
