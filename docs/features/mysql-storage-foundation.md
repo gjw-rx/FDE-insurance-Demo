@@ -1,0 +1,39 @@
+# MySQL 存储基础
+
+> Feature：`mysql-storage-foundation`
+
+## 背景与用户目标
+
+项目计划部署在云端，后续会话、续保案件、报价与材料等业务数据需要稳定的持久化基础。在引入任何业务功能之前，先把 MySQL 连接、配置校验、迁移和就绪检查这套基础固定下来，可以避免后续每个业务能力各自引入不一致的连接方式、迁移策略和失败语义。
+
+本需求关注的是「基础设施可用且可验证」，而不是任何具体的业务读写。
+
+## 范围
+
+- 业务 API 从运行环境注入 MySQL 连接信息，并在启动阶段严格校验结构、TLS、连接池与超时边界。
+- 连接池由组合根拥有，具有受控生命周期与幂等关闭。
+- 进程存活与数据库就绪分离：`/health/live` 不访问依赖，`/health/ready` 执行有界数据库往返。
+- 版本化迁移与显式迁移命令，带数据库级互斥、幂等与非零失败退出。
+- 通过隔离的非生产 MySQL 实例验证连接、参数化查询、迁移幂等与互斥、连接池关闭。
+
+## 非目标
+
+- 不创建任何业务表：会话、续保案件、报价、材料、用户与鉴权结构都不属于本需求。
+- 不把现有 `InMemoryChatSessionStore` 替换为数据库实现，会话仍然重启即清空。
+- 不提供 ORM 领域模型、业务 DAO、事务用例、跨重启恢复、备份恢复或读写分离。
+- 不在 API 进程启动时自动执行迁移。
+- 不绑定具体云厂商或托管数据库产品。
+
+## OpenSpec 关联
+
+- 主 spec：[spec.md](../../openspec/specs/mysql-storage-foundation/spec.md)
+- 已归档 change：[`2026-09-20-introduce-mysql-storage`](../../openspec/changes/archive/2026-09-20-introduce-mysql-storage/)
+- Delta spec（归档留档）：[spec.md](../../openspec/changes/archive/2026-09-20-introduce-mysql-storage/specs/mysql-storage-foundation/spec.md)
+- 测试计划：[introduce-mysql-storage.md](../testing/introduce-mysql-storage.md)
+- 技术资料：[MySQL](../tech/mysql.md)
+
+## 维护说明
+
+可测试行为以 OpenSpec 为准，任务状态以已归档 change 的 `tasks.md` 为准（归档后不再变更）。本页只维护需求背景、边界和关联入口。
+
+后续首次引入业务表或替换会话仓储时，应新建独立 change，并在该 change 中明确数据模型、迁移兼容窗口、并发一致性、恢复策略与旧数据处理方式。

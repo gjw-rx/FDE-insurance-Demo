@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import {
   existsSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -139,4 +140,34 @@ test("收尾只执行一次全仓类型检查，不叠加 Web tsc", () => {
   assert.equal(commands.filter((c) => c.includes("typecheck")).length, 1);
   assert.equal(commands.filter((c) => c.includes("tsc")).length, 0);
   assert.ok(commands.some((c) => c.includes("playwright")));
+});
+test("change 流程显式包含数据库集成测试步骤", () => {
+  const commands = commandsFor(
+    "change",
+    process.cwd(),
+    "introduce-mysql-storage",
+  );
+  assert.ok(commands.some((c) => c.includes("test:integration")));
+});
+test("失败历史文件损坏时按空历史处理，不使验证入口崩溃", async (t) => {
+  const root = fixture(t);
+  const options = {
+    root,
+    profile: "test",
+    commands: [node("console.log('ok')")],
+  };
+  assert.equal((await verify(options)).exitCode, 0);
+
+  // 模拟历史文件被截断或写入损坏内容。
+  const outputRoot = join(root, ".runtime", "harness");
+  const historyFiles = readdirSync(outputRoot).filter((f) =>
+    f.endsWith(".json"),
+  );
+  assert.ok(historyFiles.length > 0);
+  for (const file of historyFiles)
+    writeFileSync(join(outputRoot, file), "{ not-json");
+
+  const afterCorruption = await verify(options);
+  assert.equal(afterCorruption.exitCode, 0);
+  assert.equal(afterCorruption.blocked, undefined);
 });

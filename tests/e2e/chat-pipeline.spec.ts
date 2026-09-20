@@ -142,7 +142,17 @@ async function startApi(
 ): Promise<{ readonly baseUrl: string; close(): Promise<void> }> {
   const child = spawn(process.execPath, ["--import", "tsx", API_MAIN], {
     cwd: API_CWD,
-    env: { ...process.env, API_PORT: "0", AGENT_BASE_URL: agentBaseUrl },
+    env: {
+      ...process.env,
+      API_PORT: "0",
+      AGENT_BASE_URL: agentBaseUrl,
+      // 本用例只验证「浏览器 → 业务 API → fake Agent」的对话流，不访问数据库。
+      // API 现在要求数据库配置才能启动，因此指向必然不可达的本地端口即可：
+      // 连接池创建是惰性的，启动不受影响。
+      DATABASE_URL: "mysql://e2e_user:e2e_password@127.0.0.1:1/renewal",
+      DATABASE_TLS_MODE: "disabled",
+      DATABASE_ALLOW_INSECURE_TLS: "true",
+    },
     stdio: ["ignore", "pipe", "pipe"],
   });
   const started = await new Promise<{ address: string }>((resolve, reject) => {

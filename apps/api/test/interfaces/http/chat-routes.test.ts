@@ -6,6 +6,7 @@ import {
 import { afterEach, describe, expect, it } from "vitest";
 import type { AgentRunEvent } from "@renewal/contracts/agent";
 import { createApiApp } from "../../../src/bootstrap/application.js";
+import { createFakeDatabase } from "../../support/fake-database.js";
 import { AgentServiceClient } from "../../../src/infrastructure/agent/agent-service-client.js";
 import { InMemoryChatSessionStore } from "../../../src/infrastructure/persistence/in-memory-chat-session-store.js";
 
@@ -220,6 +221,8 @@ async function startApi(agentBaseUrl: string): Promise<{
       responseTimeoutMs: 5_000,
     }),
     sessionStore: sessions,
+    // 本文件只验证对话链路，不连接真实数据库。
+    database: createFakeDatabase(),
     logger: { info: () => undefined, warn: () => undefined },
   });
   const baseUrl = await app.listen();

@@ -16,10 +16,15 @@ afterEach(() => {
   }
 });
 
+/** 进程启动摘要（`api.started` 事件）。 */
+interface ApiStartupSummary {
+  readonly address: string;
+  readonly agentBaseUrl: string;
+  readonly databaseTarget: string;
+}
+
 /** 等待子进程 stdout 首行启动摘要。 */
-async function waitForStarted(
-  child: ChildProcess,
-): Promise<{ readonly address: string }> {
+async function waitForStarted(child: ChildProcess): Promise<ApiStartupSummary> {
   return new Promise((resolve, reject) => {
     let stdout = "";
     let stderr = "";
@@ -35,7 +40,7 @@ async function waitForStarted(
       const line = stdout.split("\n").find((value) => value.trim() !== "");
       if (line === undefined) return;
       clearTimeout(timeout);
-      resolve(JSON.parse(line) as { address: string });
+      resolve(JSON.parse(line) as ApiStartupSummary);
     });
     const onExit = (code: number | null): void => {
       clearTimeout(timeout);
@@ -67,6 +72,12 @@ describe("api 进程生命周期", () => {
       env: {
         ...process.env,
         API_PORT: "0",
+        // 生命周期测试只验证进程与公开路由，不要求真实数据库：指向必然不可达的
+        // 本地端口即可。这也是「启动成功 ≠ 数据库可用」的验证前提。
+        DATABASE_URL:
+          "mysql://lifecycle_user:lifecycle_password@127.0.0.1:1/renewal",
+        DATABASE_TLS_MODE: "disabled",
+        DATABASE_ALLOW_INSECURE_TLS: "true",
       },
       stdio: ["ignore", "pipe", "pipe"],
     });
@@ -74,6 +85,10 @@ describe("api 进程生命周期", () => {
 
     const started = await waitForStarted(child);
     expect(started.address).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
+    // 启动摘要只包含脱敏连接目标：凭据与完整连接串不得进入日志。
+    expect(started.databaseTarget).toBe("127.0.0.1:1/renewal");
+    expect(JSON.stringify(started)).not.toContain("lifecycle_password");
+    expect(JSON.stringify(started)).not.toContain("mysql://");
 
     const live = await fetch(`${started.address}/health/live`);
     expect(live.status).toBe(200);

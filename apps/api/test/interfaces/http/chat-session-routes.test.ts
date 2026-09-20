@@ -7,6 +7,7 @@ import type {
 import type { ChatLogger } from "../../../src/application/chat/chat-logger.js";
 import type { ChatRunAgentClient } from "../../../src/application/chat/chat-run-coordinator.js";
 import { createApiApp } from "../../../src/bootstrap/application.js";
+import { createFakeDatabase } from "../../support/fake-database.js";
 import { InMemoryChatSessionStore } from "../../../src/infrastructure/persistence/in-memory-chat-session-store.js";
 
 /**
@@ -63,8 +64,14 @@ function createApp() {
   const agent = new UnusedAgent();
   const logger = new CapturingLogger();
   const sessionStore = new InMemoryChatSessionStore();
-  const app = createApiApp({ agentClient: agent, sessionStore, logger });
-  return { app, agent, logger, sessionStore };
+  const database = createFakeDatabase();
+  const app = createApiApp({
+    agentClient: agent,
+    sessionStore,
+    logger,
+    database,
+  });
+  return { app, agent, logger, sessionStore, database };
 }
 
 /** 通过 HTTP 创建会话并返回摘要。 */

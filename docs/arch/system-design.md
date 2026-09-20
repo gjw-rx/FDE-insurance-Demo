@@ -49,6 +49,8 @@ apps/api ---> packages/application ---> packages/domain
 
 当前已实现独立 Pi runtime、内部统一接口，以及最小对话链路（`connect-chat-agent-streaming` change）：浏览器经业务 API `POST /api/chat/runs` 创建 run、经 `GET /api/chat/runs/:runId/events` 订阅 SSE。`add-chat-session-management` change 起新增会话资源层：会话、消息与 run 记录由 `apps/api` 的会话仓储（接口注入，当前为 `InMemoryChatSessionStore`）保存，由 API 侧唯一 run 协调器消费上游事件并在终态写入回答，浏览器只订阅业务 API 广播。仍不实现 Renewal、Material、Knowledge 等业务用例，不注册保险业务工具，也不提供鉴权、跨重启持久化与断线续接。
 
+`introduce-mysql-storage` change 起新增 MySQL 存储基础设施：`apps/api` 持有连接池，提供 `/health/ready` 就绪探针与发布阶段显式执行的版本化迁移命令（当前只有不创建任何业务表的空业务基线）。数据库**尚未承载业务数据**：会话仍保存在进程内，不存在会话、续保、报价或材料表。业务数据落库属于后续独立 change，需同时明确数据模型、迁移兼容窗口、并发一致性与恢复策略。
+
 ## 两条执行路径
 
 ### 续保办理
@@ -75,6 +77,7 @@ apps/api ---> packages/application ---> packages/domain
 | 原始材料             | 对象存储，数据库保存元数据                                 |
 | 报价、核保、出单状态 | 业务数据库 + 保险公司请求记录                              |
 | 对话与业务事件       | 会话/事件存储（当前为业务 API 进程内会话仓储，重启即清空） |
+| 数据库结构与迁移版本 | MySQL 迁移记录表（当前仅空业务基线，无业务表）             |
 | Pi 上下文            | Pi session 存储或数据库恢复条目                            |
 | 排障链路             | trace/log backend                                          |
 
@@ -84,6 +87,8 @@ apps/api ---> packages/application ---> packages/domain
 
 - 当前 Pi runtime 禁用 `bash`、文件写入和任意网络工具，只启用受目录门禁保护的 `read`、`grep`、`find`、`ls`；保险业务工具留给后续独立 change。
 - 身份证号、材料正文和保险公司凭据不得进入普通日志或 telemetry 属性。
+- 数据库连接凭据只从部署环境或 secret provider 注入内存，禁止写入源码、配置样例、日志、错误响应或测试产物；启动摘要与就绪响应只输出脱敏目标 `host:port/database`。
+- 数据库连接默认校验 TLS 证书链与主机名；禁用 TLS 需要显式豁免且在生产环境一律被拒绝。
 - `sessionId` 是关联键，不是访问凭证；所有查询仍需用户或运营权限校验。
 - 所有外部写操作带幂等键；超时后先查询状态，再决定是否重试。
 
@@ -92,7 +97,8 @@ apps/api ---> packages/application ---> packages/domain
 - 图源：[system-architecture.architecture.json](../../artifacts/architecture/system-architecture.architecture.json)
 - 可交互 HTML：[system-architecture.html](../../artifacts/architecture/system-architecture.html)
 - 类型与质量配置：architecture / showcase
-- 图中展示用户与 React Web、业务 API、用例路由、续保和快速问答路径，以及 Pi Agent Runtime、受控保险业务工具、保险公司接口、知识库、业务数据库和材料对象存储之间的边界与连接。
+- 图中展示用户与 React Web、业务 API 之间的对话与 SSE 路径，续保与快速问答的后续用例路径，以及 Pi Agent Runtime、受控保险业务工具、模型 Provider、保险公司接口、保险知识库和材料对象存储之间的边界与连接。
+- 该图**未包含** MySQL 存储基础设施：`introduce-mysql-storage` 只接入连接、迁移与就绪，不承载业务数据，因此图中业务数据流仍以虚线标注为后续 change。首次引入业务表时应同步更新图源与渲染产物。
 - 实线表示已实现的连接（含 Web → 业务 API 的会话资源接口与对话 API/SSE 事件），虚线表示后续 change 的用例；底部卡片区分“当前 change”“Pi 安全边界”与“明确非目标”。
 - Archify validate / deliver：9 项检查全部通过，composition 错误和警告均为 0。
 - 图源 SHA-256 `15578f594961e32cc61868034ea6892e7b0bdb64f8eadf03d13952875a75bdf3`（5596 字节），HTML SHA-256 `a23946e86ef240f183d3cc6a5ae8c3e272b260e4a2910ed05110ed4cb4d10fe6`（815759 字节）。

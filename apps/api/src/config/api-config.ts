@@ -1,24 +1,15 @@
+import { ApiConfigError } from "./config-error.js";
+import { readPositiveInteger } from "./env-reading.js";
+
+export { ApiConfigError, type ApiConfigErrorCode } from "./config-error.js";
+
 /**
  * 业务 API 的非敏感运行配置。
  *
  * 只从环境变量读取 host、port、Agent 服务地址与超时；不包含任何密钥。
  * 非法输入一律在启动阶段抛出 ApiConfigError（错误只带字段名与规则，不带值）。
+ * 数据库连接配置见 database-config.ts，两者共同构成完整启动配置。
  */
-
-export type ApiConfigErrorCode = "config-invalid";
-
-/** 配置错误只携带字段路径与规则说明。 */
-export class ApiConfigError extends Error {
-  readonly code: ApiConfigErrorCode;
-  readonly field: string;
-
-  constructor(code: ApiConfigErrorCode, field: string, message: string) {
-    super(message);
-    this.name = "ApiConfigError";
-    this.code = code;
-    this.field = field;
-  }
-}
 
 export interface ApiConfig {
   /** 对外监听地址；默认仅 loopback，生产暴露由部署网关决定。 */
@@ -49,25 +40,6 @@ function readPort(raw: string | undefined): number {
       "config-invalid",
       "API_PORT",
       "API_PORT 必须是 0-65535 之间的整数（0 表示随机端口）",
-    );
-  }
-  return value;
-}
-
-/** 解析正整数字段；缺失用默认值，非法即拒绝。 */
-function readPositiveInteger(
-  name: string,
-  raw: string | undefined,
-  defaultValue: number,
-  max: number,
-): number {
-  if (raw === undefined || raw.trim() === "") return defaultValue;
-  const value = Number(raw);
-  if (!Number.isInteger(value) || value <= 0 || value > max) {
-    throw new ApiConfigError(
-      "config-invalid",
-      name,
-      `${name} 必须是 1-${max} 之间的整数`,
     );
   }
   return value;

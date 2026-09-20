@@ -4,27 +4,34 @@
 
 会话数据当前只保存在进程内（`InMemoryChatSessionStore`），API 重启后清空；仓储以 `ChatSessionStore` 接口注入，后续替换为文件或数据库实现时只改组合根。
 
+MySQL 连接、迁移与就绪检查基础设施已接入（见 change `introduce-mysql-storage`），但**不承载任何业务数据**：本服务不创建会话、续保、报价或材料表，也没有把会话仓储换成数据库实现。数据库当前的唯一运行时消费者是 `/health/ready` 就绪探针；迁移由发布流程显式执行，不在进程启动时触发。
+
 ```text
 src/
 ├── bootstrap/              # application factory 与进程入口
-│   ├── application.ts      # 装配配置、会话仓储、会话服务、run 协调器与公开路由
-│   └── main.ts             # 进程启动与 SIGINT/SIGTERM 优雅关闭
+│   ├── application.ts      # 装配配置、数据库、会话仓储、会话服务、run 协调器与公开路由
+│   ├── main.ts             # 进程启动与 SIGINT/SIGTERM 优雅关闭
+│   └── migrate.ts          # 迁移命令入口（发布阶段显式执行）
 ├── application/chat/       # 会话应用服务、仓储端口、run 协调器与标题规则
-├── config/                 # 非敏感运行配置与环境变量校验
-├── interfaces/http/        # Fastify 路由、请求校验与错误转换
+├── config/                 # 运行配置与环境变量校验（含数据库连接）
+├── interfaces/http/        # Fastify 路由、健康探针、请求校验与错误转换
 └── infrastructure/
     ├── agent/              # insurance-agent 内部 HTTP/SSE typed client
+    ├── database/           # MySQL 连接池、就绪检查与迁移执行
     ├── observability/      # JSON 行结构化日志实现
     ├── persistence/        # 会话仓储实现（当前为进程内）
     ├── insurer/            # 各保险公司防腐层（后续）
     └── knowledge/          # 保险知识库适配器（后续）
 ```
 
+迁移文件位于 `drizzle/`，当前只有不创建任何业务表的空业务基线。
+
 ## 公开接口
 
 | Method  | Path                                | 说明                                                      |
 | ------- | ----------------------------------- | --------------------------------------------------------- |
-| `GET`   | `/health/live`                      | 进程存活探针                                              |
+| `GET`   | `/health/live`                      | 进程存活探针；不访问数据库，数据库故障不会触发进程重启    |
+| `GET`   | `/health/ready`                     | 数据库就绪探针；执行有界往返，未就绪返回 503 与脱敏原因   |
 | `POST`  | `/api/chat/sessions`                | 创建默认标题为「新会话」的空会话                          |
 | `GET`   | `/api/chat/sessions?limit=&cursor=` | 邀请游标分页列出会话摘要（按最近更新时间倒序）            |
 | `GET`   | `/api/chat/sessions/:sessionId`     | 返回会话摘要与有序持久消息                                |
@@ -38,20 +45,34 @@ src/
 
 非敏感配置通过环境变量提供，无密钥字段：
 
-| 变量                        | 默认值                  | 说明                        |
-| --------------------------- | ----------------------- | --------------------------- |
-| `API_HOST`                  | `127.0.0.1`             | 监听地址（默认仅 loopback） |
-| `API_PORT`                  | `4300`                  | 监听端口；`0` 表示随机端口  |
-| `AGENT_BASE_URL`            | `http://127.0.0.1:4310` | insurance-agent 服务基地址  |
-| `AGENT_CONNECT_TIMEOUT_MS`  | `3000`                  | 连接 Agent 服务超时         |
-| `AGENT_RESPONSE_TIMEOUT_MS` | `300000`                | 等待 Agent 响应/事件超时    |
+| 变量                          | 默认值                  | 说明                                                        |
+| ----------------------------- | ----------------------- | ----------------------------------------------------------- |
+| `API_HOST`                    | `127.0.0.1`             | 监听地址（默认仅 loopback）                                 |
+| `API_PORT`                    | `4300`                  | 监听端口；`0` 表示随机端口                                  |
+| `AGENT_BASE_URL`              | `http://127.0.0.1:4310` | insurance-agent 服务基地址                                  |
+| `AGENT_CONNECT_TIMEOUT_MS`    | `3000`                  | 连接 Agent 服务超时                                         |
+| `AGENT_RESPONSE_TIMEOUT_MS`   | `300000`                | 等待 Agent 响应/事件超时                                    |
+| `DATABASE_URL`                | 无（必填）              | `mysql://用户:密码@主机:端口/库名`；缺失即拒绝启动          |
+| `DATABASE_TLS_MODE`           | `verify-identity`       | 校验证书链与主机名；`disabled` 需显式豁免且生产环境一律拒绝 |
+| `DATABASE_CA_FILE`            | 空                      | 自签证书的 CA 文件路径                                      |
+| `DATABASE_ALLOW_INSECURE_TLS` | `false`                 | 仅非生产允许关闭 TLS，需显式设为 `true`                     |
+| `DATABASE_POOL_SIZE`          | `10`                    | 连接上限，1–50                                              |
+| `DATABASE_QUEUE_LIMIT`        | `20`                    | 池耗尽时的排队上限，1–500                                   |
+| `DATABASE_CONNECT_TIMEOUT_MS` | `5000`                  | 建连超时，1–60000                                           |
+| `DATABASE_QUERY_TIMEOUT_MS`   | `10000`                 | 查询超时，1–120000                                          |
+
+配置只从环境注入，错误信息不含连接地址、用户名或密码；启动摘要只输出脱敏目标 `host:port/database`。详细约束见 [MySQL 技术资料](../../docs/tech/mysql.md)。
 
 ```bash
-corepack pnpm --filter @renewal/api dev     # tsx watch
-corepack pnpm --filter @renewal/api start   # 单次启动
-corepack pnpm dev:api                       # 仓库根快捷方式
-corepack pnpm --filter @renewal/api test
+corepack pnpm --filter @renewal/api dev              # tsx watch
+corepack pnpm --filter @renewal/api start            # 单次启动
+corepack pnpm dev:api                                # 仓库根快捷方式
+corepack pnpm --filter @renewal/api test             # 单元与应用级（不访问数据库）
+corepack pnpm --filter @renewal/api test:integration # 真实数据库（需 DATABASE_TEST_URL）
+corepack pnpm --filter @renewal/api db:migrate       # 发布阶段显式迁移
 ```
+
+本地开发从仓库根 `.env` 读取配置（`--env-file-if-exists`），云端由 secret provider 注入同名变量；`.env` 已被 `.gitignore` 忽略，不提交真实凭据。集成测试使用独立的 `DATABASE_TEST_URL`，不会回退到运行时 `DATABASE_URL`。
 
 浏览器不直连 `insurance-agent`：开发环境由 Vite 将同源 `/api` 代理到本 API，生产环境由同源网关提供相同路径，因此当前不注册 CORS。
 

@@ -2,7 +2,6 @@ import { spawn } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import {
   createWriteStream,
-  existsSync,
   mkdirSync,
   readdirSync,
   readFileSync,
@@ -132,6 +131,28 @@ export async function runCommand(
   };
 }
 
+/**
+ * 读取失败计数历史。
+ *
+ * 历史文件只是重试保护的缓存：缺失、损坏或字段异常时按空历史处理，避免验证入口
+ * 因一次未捕获的解析错误直接崩溃、让使用者无法继续验证。
+ */
+function readHistory(historyPath) {
+  try {
+    const parsed = JSON.parse(readFileSync(historyPath, "utf8"));
+    const failures = Number(parsed?.failures);
+    return {
+      failures: Number.isFinite(failures) && failures > 0 ? failures : 0,
+      summaryPath:
+        typeof parsed?.summaryPath === "string"
+          ? parsed.summaryPath
+          : undefined,
+    };
+  } catch {
+    return { failures: 0, summaryPath: undefined };
+  }
+}
+
 export async function verify({
   root,
   profile,
@@ -147,9 +168,7 @@ export async function verify({
     .update(JSON.stringify({ profile, commands, inputHash }))
     .digest("hex");
   const historyPath = join(outputRoot, `${key}.json`);
-  const history = existsSync(historyPath)
-    ? JSON.parse(readFileSync(historyPath, "utf8"))
-    : { failures: 0 };
+  const history = readHistory(historyPath);
   if (history.failures >= 2 && !retryReason.trim()) {
     return {
       exitCode: 2,
@@ -226,6 +245,10 @@ export function commandsFor(profile, root, change) {
       harness,
       pnpm("typecheck"),
       pnpm("test"),
+      // 真实数据库集成测试：未配置 DATABASE_TEST_URL 时会整体跳过并给出原因，
+      // 因此该步骤不依赖凭据即可存在；但「跳过」不等于数据库行为已验证，
+      // 验收结论必须以其日志中的 skipped 计数为准。
+      pnpm("--filter", "@renewal/api", "test:integration"),
       pnpm("--filter", "@renewal/web", "build"),
       pnpm("exec", "playwright", "test"),
       ...docs,

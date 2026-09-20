@@ -11,6 +11,8 @@ export async function runApiProcess(): Promise<void> {
       event: "api.started",
       address,
       agentBaseUrl: app.config.agentBaseUrl,
+      // 只输出脱敏连接目标（host:port/database）：凭据与完整连接串不入日志与启动摘要。
+      databaseTarget: app.database.target,
     })}\n`,
   );
 
