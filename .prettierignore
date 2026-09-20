@@ -1,4 +1,5 @@
 artifacts/architecture/*.html
+designs/**/*.html
 node_modules
 dist
 playwright-report

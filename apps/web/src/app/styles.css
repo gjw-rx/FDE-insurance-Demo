@@ -1,23 +1,38 @@
-/* 工作台首屏静态壳全局样式与 design tokens。
-   token 值来自原型 designs/insurance-assistant.pen。 */
+/* 工作台样式。
+   token 与几何数值取自 pen 导出原型 designs/insurance-assistant.html 与
+   designs/designs/dialog/export.png；类名沿用组件既有约定。 */
 
 :root {
   /* 颜色 tokens（对应原型 variables） */
   --color-bg: #f3f5ff; /* 页面背景 */
   --color-surface: #ffffff; /* 卡片/面板背景 */
-  --color-text: #171a25; /* 主文字 */
+  --color-text: #242733; /* 主文字 */
+  --color-text-body: #424651; /* 正文 */
+  --color-text-strong: #282b35; /* 卡片标题 */
   --color-text-muted: #8a90a1; /* 次级文字 */
-  --color-line: #e8eaf2; /* 分割线/描边 */
-  --color-accent-purple: #6d63d8; /* 强调紫 */
-  --color-accent-mint: #5ecac1; /* 薄荷绿 */
+  --color-text-faint: #c4c7d0; /* 时间戳等最弱层级 */
+  --color-line: #e8eaf0; /* 分割线/描边 */
+  --color-line-soft: #e6e8ee; /* 更浅的分割线 */
+  --color-chip: #f7f8fb; /* 浅色控件底 */
+  --color-chip-strong: #f5f7fb; /* 会话栏图标底 */
+  --color-bubble: #fbfbfd; /* 消息气泡底 */
+  --color-primary: #356df3; /* 主按钮 */
+  --color-primary-hover: #2b61e0;
+  --color-primary-disabled: #cbd6f5;
+  --color-primary-soft: #edf3ff; /* 选中会话底 */
+  --color-primary-soft-text: #2f5fd7; /* 选中会话标题 */
+  --color-primary-soft-time: #6e8fd9; /* 选中会话时间 */
+  --color-mint: #6fc4bb; /* 报价图标 */
+  --color-selected: #659896; /* 已选择文字 */
+  --color-selected-line: #83aaa8; /* 已选择描边 */
+  --color-danger: #d9534f;
   --color-brand-purple: #21149a; /* 品牌紫（YiLiang 折角） */
-  --color-brand-purple-dark: #201090; /* 品牌紫（左侧竖条） */
-  --color-brand-cyan: #59c9db; /* 品牌青色圆点 */
 
   /* 圆角 */
   --radius-page: 14px;
   --radius-card: 5px;
   --radius-panel: 4px;
+  --radius-control: 9px;
   --radius-pill: 12px;
   --radius-tag: 3px;
 
@@ -25,6 +40,8 @@
   --shadow-bar: 0 4px 14px rgba(41, 48, 74, 0.1);
   --shadow-card: 0 3px 12px rgba(41, 48, 74, 0.07);
   --shadow-bubble: 0 2px 10px rgba(45, 51, 69, 0.04);
+  --shadow-popover: 0 8px 24px rgba(37, 50, 74, 0.12);
+  --shadow-primary: 0 3px 8px rgba(53, 109, 243, 0.17);
 
   /* 字体栈：原型字体 Inter 为首选，回退系统无衬线字体，不引入字体文件 */
   --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
@@ -50,7 +67,8 @@ body {
 /* ===== 页面骨架 ===== */
 
 .workbench {
-  max-width: 1048px;
+  max-width: 1080px;
+  min-height: 100vh; /* 页面填满视口，右列卡片随对话区等高，不留空白 */
   margin: 0 auto;
   padding: 24px 16px 32px;
   display: flex;
@@ -64,6 +82,8 @@ body {
   justify-content: space-between;
   gap: 17px;
   align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .workbench-side {
@@ -71,6 +91,7 @@ body {
   flex-direction: column;
   gap: 17px;
   min-width: 0;
+  min-height: 0;
 }
 
 /* ===== 应用品牌栏 ===== */
@@ -79,10 +100,12 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
+  min-height: 76px; /* 窄视口下允许换行撑高，避免裁切品牌名 */
+  padding: 0 20px;
   background-color: var(--color-surface);
   border-radius: 2px;
   box-shadow: var(--shadow-bar);
+  flex-shrink: 0;
 }
 
 .brand-bar__identity {
@@ -93,8 +116,10 @@ body {
 }
 
 .brand-mark {
-  height: 36px;
+  height: 48px; /* 原型品牌标 70×48 */
   width: auto;
+  max-width: 70px;
+  object-fit: contain;
   flex-shrink: 0;
 }
 
@@ -102,6 +127,9 @@ body {
   font-size: 21px;
   font-weight: 600;
   color: #20232c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .brand-bar__user {
@@ -136,26 +164,29 @@ body {
 
 /* ===== 对话主区 ===== */
 
-.chat-panel__messages {
-  overflow-y: auto; /* 消息增多时在面板内滚动，不撑破工作台布局 */
-  min-height: 0;
-  flex: 1; /* 占满标题与输入区之间的剩余空间，让输入区持续贴底 */
-}
-
 .chat-panel {
   background-color: var(--color-surface);
   border-radius: var(--radius-panel);
-  padding: 16px 20px;
-  min-height: 400px;
   min-width: 0;
-  display: flex; /* 仅新增：让对话输入区吸底（见 dialog-function design.md D2） */
+  min-height: 0;
+  display: flex;
   flex-direction: column;
+}
+
+/* 会话栏下方的内容区：标题、消息与输入区 */
+.chat-panel__main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: 16px 20px 20px;
 }
 
 .chat-panel__header {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .chat-panel__avatar {
@@ -176,6 +207,9 @@ body {
 }
 
 .chat-panel__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -183,13 +217,19 @@ body {
   margin: 0;
   font-size: 15px;
   font-weight: 700;
-  color: #242733;
+  color: var(--color-text);
 }
 
 .chat-panel__subtitle {
   margin: 0;
   font-size: 12px;
   color: #7f8492;
+}
+
+.chat-panel__messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto; /* 消息增多时在面板内滚动，不撑破工作台布局 */
 }
 
 .chat-message {
@@ -202,8 +242,7 @@ body {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background-color: #f1e8e7;
-  border: 1px solid #e6d9d8;
+  background-color: #f1e8e7; /* 原型客服头像底；图标自带深色人形 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -213,23 +252,23 @@ body {
 .chat-message__avatar-icon {
   width: 18px;
   height: 18px;
-  color: #2e2934;
+  color: #24212a;
 }
 
 .chat-message__body {
-  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 9px;
+  min-width: 0;
 }
 
 .chat-message__time {
   font-size: 10px;
-  color: #c4c7d0;
+  color: var(--color-text-faint);
 }
 
 .chat-message__bubble {
-  background-color: #fbfbfd;
+  background-color: var(--color-bubble);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-bubble);
   padding: 11px 14px;
@@ -240,22 +279,440 @@ body {
   margin: 0;
   font-size: 13px;
   line-height: 1.55;
-  color: #424651;
+  color: var(--color-text-body);
   white-space: pre-line; /* 保留静态示例数据中的换行 */
 }
 
-/* ----- 对话输入区（dialog-function，按 designs/designs/dialog/export.png） ----- */
+.chat-panel__loading,
+.chat-panel__error {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.chat-panel__error {
+  color: var(--color-danger);
+}
+
+/* ===== 会话栏与会话面板 ===== */
+
+.chat-session-nav {
+  position: relative; /* 会话面板相对会话栏定位 */
+  flex-shrink: 0;
+}
+
+.chat-session-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 66px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.chat-session-bar__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background-color: var(--color-chip-strong);
+  color: #626875;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.chat-session-bar__toggle:hover {
+  background-color: #eceff6;
+}
+
+.chat-session-bar__toggle-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.chat-session-bar__current {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.chat-session-bar__title-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.chat-session-bar__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  max-width: 260px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.chat-session-bar__caret {
+  width: 14px;
+  height: 14px;
+  color: #a5a9b4;
+  flex-shrink: 0;
+}
+
+.chat-session-bar__time {
+  font-size: 10px;
+  color: #a5a9b4;
+}
+
+.chat-session-bar__error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--color-danger);
+}
+
+.chat-session-bar__retry {
+  padding: 1px 8px;
+  border: 1px solid #f0c4c1;
+  border-radius: 6px;
+  background-color: #fdf4f3;
+  color: #b2433f;
+  font-family: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.chat-session-bar__create {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  margin-left: auto;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background-color: var(--color-primary);
+  box-shadow: var(--shadow-primary);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.chat-session-bar__create:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.chat-session-bar__create:disabled {
+  background-color: var(--color-primary-disabled);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.chat-session-bar__create-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.chat-session-panel {
+  position: absolute;
+  left: 20px;
+  top: 58px;
+  z-index: 20;
+  width: 326px;
+  max-height: 326px;
+  padding: 6px 0 8px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-page);
+  box-shadow: var(--shadow-popover);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-session-panel__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 8px 16px;
+  border-bottom: 1px solid var(--color-line-soft);
+}
+
+.chat-session-panel__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.chat-session-panel__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: #8a90a1;
+  cursor: pointer;
+}
+
+.chat-session-panel__close:hover {
+  background-color: var(--color-chip);
+}
+
+.chat-session-panel__close-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.chat-session-panel__group {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px 6px;
+  font-size: 11px;
+  color: #9a9fab;
+}
+
+.chat-session-panel__count {
+  margin-left: auto;
+  font-size: 10px;
+  color: #b0b4be;
+}
+
+.chat-session-panel__hint {
+  margin: 0;
+  padding: 8px 16px 12px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.chat-session-panel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto; /* 会话增多时在面板内滚动 */
+  min-height: 0;
+}
+
+.chat-session-item {
+  display: flex;
+  align-items: stretch; /* 子元素填满条目高度，整行可点 */
+  gap: 2px;
+  min-height: 42px; /* 用 min-height 而非固定高度：展开重命名表单时条目需要会长 */
+  border-radius: 8px;
+}
+
+.chat-session-item--current {
+  background-color: var(--color-primary-soft);
+}
+
+.chat-session-item__select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  padding: 0 8px; /* 高度由父级 stretch 决定，不写 height，避免父级高度不确定时百分比失效 */
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chat-session-item__select:disabled {
+  cursor: not-allowed;
+}
+
+.chat-session-item__icon {
+  width: 15px;
+  height: 15px;
+  color: #a8acb6;
+  flex-shrink: 0;
+}
+
+.chat-session-item--current .chat-session-item__icon {
+  color: var(--color-primary-soft-time);
+}
+
+.chat-session-item__name {
+  font-size: 12px;
+  color: #4c515d;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.chat-session-item--current .chat-session-item__name {
+  font-weight: 600;
+  color: var(--color-primary-soft-text);
+}
+
+.chat-session-item__time {
+  font-size: 10px;
+  color: #a8acb6;
+  flex-shrink: 0;
+}
+
+.chat-session-item--current .chat-session-item__time {
+  color: var(--color-primary-soft-time);
+}
+
+.chat-session-item__rename {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center; /* 父级 stretch 下保持垂直居中 */
+  width: 26px;
+  height: 26px;
+  margin-right: 4px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: #b0b4be;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.chat-session-item__rename:hover:not(:disabled),
+.chat-session-item__rename:focus-visible {
+  background-color: #dfe7fb;
+  color: #4c515d;
+}
+
+.chat-session-item__rename:disabled {
+  color: #d3d6dd;
+  cursor: not-allowed;
+}
+
+.chat-session-item__rename-icon {
+  width: 13px;
+  height: 13px;
+}
+
+.chat-session-item__rename-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+}
+
+.chat-session-item__rename-label {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+.chat-session-item__rename-input {
+  width: 100%;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  background-color: var(--color-surface);
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--color-text);
+}
+
+.chat-session-item__rename-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.chat-session-item__rename-save,
+.chat-session-item__rename-cancel {
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  background-color: var(--color-chip);
+  color: #2b2f3a;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.chat-session-item__rename-save {
+  border-color: #b9c6f4;
+  background-color: #eef2fe;
+  color: var(--color-primary-soft-text);
+}
+
+.chat-session-panel__more {
+  align-self: center;
+  margin: 8px 0 0;
+  padding: 4px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  background-color: var(--color-chip);
+  color: #2b2f3a;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.chat-session-panel__more:disabled {
+  color: #a5a9b4;
+  cursor: not-allowed;
+}
+
+.chat-session-panel__error,
+.chat-session-panel__rename-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 16px 0;
+  font-size: 12px;
+  color: var(--color-danger);
+}
+
+.chat-session-panel__error {
+  margin-bottom: 4px;
+}
+
+.chat-session-panel__retry {
+  padding: 2px 8px;
+  border: 1px solid #f0c4c1;
+  border-radius: 6px;
+  background-color: #fdf4f3;
+  color: #b2433f;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ===== 对话输入区（designs/designs/dialog/export.png） ===== */
 
 .chat-composer {
-  margin-top: auto; /* 贴附对话主区底部，padding-top 作为与消息的最小间距 */
-  padding-top: 28px;
+  padding-top: 20px;
+  flex-shrink: 0;
 }
 
 .chat-composer__box {
   border: 1px solid var(--color-line);
-  border-radius: 10px;
+  border-radius: var(--radius-page);
   background-color: var(--color-surface);
-  padding: 14px 14px 12px;
+  padding: 16px 16px 13px;
 }
 
 .chat-composer__box:focus-within {
@@ -265,7 +722,6 @@ body {
 .chat-composer__input {
   display: block;
   width: 100%;
-  box-sizing: border-box;
   border: 0;
   background-color: transparent;
   padding: 0;
@@ -285,18 +741,18 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 14px;
 }
 
 .chat-composer__upload {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 30px;
+  height: 32px;
   padding: 0 12px;
   border: 0;
   border-radius: 8px;
-  background-color: #f7f8fb;
+  background-color: var(--color-chip);
   color: #2b2f3a;
   font-family: inherit;
   font-size: 13px;
@@ -314,7 +770,7 @@ body {
 }
 
 .chat-composer__hint {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--color-text-muted);
   min-width: 0;
 }
@@ -323,23 +779,23 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   margin-left: auto;
   border: 0;
   border-radius: 50%;
-  background-color: #356df3;
+  background-color: var(--color-primary);
   color: #ffffff;
   flex-shrink: 0;
   cursor: pointer;
 }
 
 .chat-composer__send:hover:not(:disabled) {
-  background-color: #2b61e0;
+  background-color: var(--color-primary-hover);
 }
 
 .chat-composer__send:disabled {
-  background-color: #cbd6f5;
+  background-color: var(--color-primary-disabled);
   cursor: not-allowed;
 }
 
@@ -351,7 +807,7 @@ body {
 .chat-composer__error {
   margin: 8px 0 0;
   font-size: 12px;
-  color: #d9534f;
+  color: var(--color-danger);
 }
 
 /* ===== 卡片公共标题区 ===== */
@@ -370,14 +826,16 @@ body {
 }
 
 .card-head__icon--mint {
-  color: #6fc4bb;
+  width: 19px;
+  height: 19px;
+  color: var(--color-mint);
 }
 
 .card-head__title {
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: #282b35;
+  color: var(--color-text-strong);
 }
 
 /* ===== 最新报价卡片 ===== */
@@ -387,20 +845,23 @@ body {
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   padding: 21px 16px;
+  /* 原型卡片高度比 252:292；按比例分摊右列剩余高度，与对话区底部对齐 */
+  flex: 252 1 auto;
+  min-height: 252px;
 }
 
 .quote-card__toggle {
-  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-left: auto;
+  padding: 2px 0;
   border: none;
   background: none;
-  padding: 2px 0;
-  cursor: pointer;
+  color: #b2b6c0;
   font-family: inherit;
   font-size: 12px;
-  color: #b2b6c0;
+  cursor: pointer;
 }
 
 .quote-card__toggle-icon {
@@ -409,7 +870,7 @@ body {
 }
 
 .quote-card__toggle:hover {
-  color: #8a90a1;
+  color: var(--color-text-muted);
 }
 
 .quote-card__content {
@@ -442,14 +903,20 @@ body {
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  /* 与报价卡片按原型高度比共同撑满右列 */
+  flex: 292 1 auto;
+  min-height: 292px;
 }
 
 .insurer-card__list {
   list-style: none;
-  margin: 16px 0 0;
+  margin: 17px 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
+  gap: 12px; /* 原型行高 48、行间距 12，无分割线 */
 }
 
 .insurer-item {
@@ -457,17 +924,13 @@ body {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 12px 0;
+  min-height: 48px;
+  padding: 0;
   border: none;
-  border-bottom: 1px solid var(--color-line);
   background: none;
-  cursor: pointer;
   font-family: inherit;
   text-align: left;
-}
-
-.insurer-card__list li:last-child .insurer-item {
-  border-bottom: none;
+  cursor: pointer;
 }
 
 .insurer-item__identity {
@@ -506,13 +969,13 @@ body {
 }
 
 .insurer-item__state {
-  width: 52px;
-  height: 24px;
-  border-radius: var(--radius-pill);
-  border: 1px solid #c5c8d0;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 52px;
+  height: 24px;
+  border: 1px solid #c5c8d0;
+  border-radius: var(--radius-pill);
   flex-shrink: 0;
   font-size: 10px;
   font-weight: 600;
@@ -520,19 +983,29 @@ body {
 }
 
 .insurer-item--selected .insurer-item__state {
-  border-color: #83aaa8;
-  color: #659896;
+  border-color: var(--color-selected-line);
+  color: var(--color-selected);
 }
 
-/* ===== 响应式：单一收窄断点（见 design.md D5） ===== */
+/* ===== 响应式：单一收窄断点 ===== */
 
 @media (max-width: 1024px) {
+  .workbench {
+    min-height: 0;
+  }
+
   .workbench-grid {
     grid-template-columns: minmax(0, 1fr);
+    flex: 0 1 auto;
   }
 
   .chat-panel {
-    min-height: 0;
+    min-height: 420px; /* 单列布局下给对话区一个可用高度 */
+  }
+
+  .chat-session-panel {
+    width: min(326px, calc(100% - 32px));
+    left: 16px;
   }
 }
 
@@ -542,7 +1015,24 @@ body {
     row-gap: 4px;
   }
 
+  .brand-mark {
+    height: 36px;
+  }
+
   .insurer-item__english-name {
     display: none;
+  }
+
+  .chat-session-bar {
+    gap: 8px;
+    padding: 0 12px;
+  }
+
+  .chat-session-bar__title {
+    max-width: 140px;
+  }
+
+  .chat-session-panel {
+    max-height: 280px;
   }
 }

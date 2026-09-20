@@ -845,7 +845,7 @@
               "type": "frame",
               "id": "riugK",
               "x": 20,
-              "y": 16,
+              "y": 82,
               "name": "助手标题区",
               "width": 360,
               "height": 52,
@@ -929,7 +929,7 @@
               "type": "frame",
               "id": "rQAaS",
               "x": 20,
-              "y": 91,
+              "y": 157,
               "name": "欢迎消息",
               "width": 500,
               "height": 140,
@@ -1206,6 +1206,550 @@
                       "icon": "square",
                       "library": "lucide",
                       "fill": "#FFFFFF"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "T35d9y",
+              "x": 0,
+              "y": 0,
+              "name": "会话管理栏",
+              "width": 684,
+              "height": 66,
+              "fill": "#FFFFFF",
+              "stroke": "#E8EAF0",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                0,
+                20
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "nqcdu",
+                  "name": "当前会话信息",
+                  "gap": 11,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "ZoB40",
+                      "name": "打开会话列表按钮",
+                      "width": 36,
+                      "height": 36,
+                      "fill": "#F5F7FB",
+                      "cornerRadius": 9,
+                      "stroke": "#E6E8EE",
+                      "strokeWidth": 1,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "cFToE",
+                          "name": "会话列表图标",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "panel-left",
+                          "library": "lucide",
+                          "fill": "#555B68"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sfJDO",
+                      "name": "会话标题区",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "LQHSi",
+                          "name": "会话标题行",
+                          "gap": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "o14Sy",
+                              "name": "当前会话标题",
+                              "fill": "#242733",
+                              "content": "车险投保咨询",
+                              "fontFamily": "$font",
+                              "fontSize": 14,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "icon",
+                              "id": "G2FgxP",
+                              "name": "会话切换箭头",
+                              "width": 14,
+                              "height": 14,
+                              "icon": "chevron-down",
+                              "library": "lucide",
+                              "fill": "#8A8F9C"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "z7KHOX",
+                          "name": "会话更新时间",
+                          "fill": "#A5A9B4",
+                          "content": "刚刚更新",
+                          "fontFamily": "$font",
+                          "fontSize": 10,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "exEJV",
+                  "name": "会话操作区",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "HXma6",
+                      "name": "最近会话按钮",
+                      "width": 34,
+                      "height": 34,
+                      "cornerRadius": 9,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "jQnl8",
+                          "name": "历史记录图标",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "history",
+                          "library": "lucide",
+                          "fill": "#6D7280"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "B1eIUo",
+                      "name": "新建会话按钮",
+                      "height": 34,
+                      "fill": "#356DF3",
+                      "cornerRadius": 9,
+                      "effect": {
+                        "type": "shadow",
+                        "shadowType": "outer",
+                        "color": "#356DF32B",
+                        "offset": {
+                          "x": 0,
+                          "y": 3
+                        },
+                        "blur": 8
+                      },
+                      "gap": 7,
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "t4K33",
+                          "name": "新建会话图标",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "square-pen",
+                          "library": "lucide",
+                          "fill": "#FFFFFF"
+                        },
+                        {
+                          "type": "text",
+                          "id": "PfGkO",
+                          "name": "新建会话文字",
+                          "fill": "#FFFFFF",
+                          "content": "新会话",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "BjevQ",
+              "x": 20,
+              "y": 58,
+              "name": "会话管理面板",
+              "width": 326,
+              "height": 350,
+              "fill": "#FFFFFF",
+              "cornerRadius": 14,
+              "stroke": "#E5E8EF",
+              "strokeWidth": 1,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#25324A1F",
+                "offset": {
+                  "x": 0,
+                  "y": 8
+                },
+                "blur": 24
+              },
+              "layout": "vertical",
+              "gap": 12,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "b1wp7",
+                  "name": "会话面板标题栏",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "AsIHA",
+                      "name": "会话面板标题",
+                      "fill": "#242733",
+                      "content": "所有会话",
+                      "fontFamily": "$font",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "iLImK",
+                      "name": "关闭会话面板按钮",
+                      "width": 28,
+                      "height": 28,
+                      "cornerRadius": 7,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "LnSW0",
+                          "name": "关闭图标",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "x",
+                          "library": "lucide",
+                          "fill": "#8A8F9C"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "igfdI",
+                  "name": "搜索会话输入框",
+                  "width": "fill_container",
+                  "height": 38,
+                  "fill": "#F7F8FB",
+                  "cornerRadius": 9,
+                  "stroke": "#E8EAF0",
+                  "strokeWidth": 1,
+                  "gap": 8,
+                  "padding": [
+                    0,
+                    11
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "IzH9n",
+                      "name": "搜索会话图标",
+                      "width": 16,
+                      "height": 16,
+                      "icon": "search",
+                      "library": "lucide",
+                      "fill": "#969BA8"
+                    },
+                    {
+                      "type": "text",
+                      "id": "D5PNi",
+                      "name": "搜索会话占位文字",
+                      "fill": "#969BA8",
+                      "content": "搜索最近会话",
+                      "fontFamily": "$font",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Eup73",
+                  "name": "最近会话分组",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Wbq0c",
+                      "name": "最近会话标题",
+                      "fill": "#9A9FAB",
+                      "content": "最近",
+                      "fontFamily": "$font",
+                      "fontSize": 11,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "l4L3I",
+                      "name": "会话数量",
+                      "fill": "#B0B4BE",
+                      "content": "4 个会话",
+                      "fontFamily": "$font",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "v625f",
+                  "name": "会话项-车险投保咨询",
+                  "width": "fill_container",
+                  "height": 42,
+                  "fill": "#EDF3FF",
+                  "cornerRadius": 8,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "y842W",
+                      "name": "会话项内容",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "bkSIb",
+                          "name": "会话气泡图标",
+                          "width": 15,
+                          "height": 15,
+                          "icon": "message-square",
+                          "library": "lucide",
+                          "fill": "#356DF3"
+                        },
+                        {
+                          "type": "text",
+                          "id": "lD2dr",
+                          "name": "会话项标题",
+                          "fill": "#2F5FD7",
+                          "content": "车险投保咨询",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "z11pio",
+                      "name": "会话项时间",
+                      "fill": "#6E8FD9",
+                      "content": "刚刚",
+                      "fontFamily": "$font",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Tyh6f",
+                  "name": "会话项-新能源车续保报价",
+                  "width": "fill_container",
+                  "height": 42,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 8,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "dPP2j",
+                      "name": "会话项内容",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "c5ZHv",
+                          "name": "会话气泡图标",
+                          "width": 15,
+                          "height": 15,
+                          "icon": "message-square",
+                          "library": "lucide",
+                          "fill": "#8E94A1"
+                        },
+                        {
+                          "type": "text",
+                          "id": "HaDEN",
+                          "name": "会话项标题",
+                          "fill": "#4C515D",
+                          "content": "新能源车续保报价",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "CDXue",
+                      "name": "会话项时间",
+                      "fill": "#A8ACB6",
+                      "content": "昨天",
+                      "fontFamily": "$font",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "pEYDr",
+                  "name": "会话项-理赔材料怎么准备",
+                  "width": "fill_container",
+                  "height": 42,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 8,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Tf9Mm",
+                      "name": "会话项内容",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "r9Argi",
+                          "name": "会话气泡图标",
+                          "width": 15,
+                          "height": 15,
+                          "icon": "message-square",
+                          "library": "lucide",
+                          "fill": "#8E94A1"
+                        },
+                        {
+                          "type": "text",
+                          "id": "rK9Bu",
+                          "name": "会话项标题",
+                          "fill": "#4C515D",
+                          "content": "理赔材料怎么准备",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "oISNI",
+                      "name": "会话项时间",
+                      "fill": "#A8ACB6",
+                      "content": "5月29日",
+                      "fontFamily": "$font",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "NC53X",
+                  "name": "会话项-三者险保额建议",
+                  "width": "fill_container",
+                  "height": 42,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 8,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "dNf0N",
+                      "name": "会话项内容",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "QhhUH",
+                          "name": "会话气泡图标",
+                          "width": 15,
+                          "height": 15,
+                          "icon": "message-square",
+                          "library": "lucide",
+                          "fill": "#8E94A1"
+                        },
+                        {
+                          "type": "text",
+                          "id": "SIECF",
+                          "name": "会话项标题",
+                          "fill": "#4C515D",
+                          "content": "三者险保额建议",
+                          "fontFamily": "$font",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "ac4Pt",
+                      "name": "会话项时间",
+                      "fill": "#A8ACB6",
+                      "content": "5月27日",
+                      "fontFamily": "$font",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
                     }
                   ]
                 }

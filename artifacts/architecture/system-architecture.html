@@ -5591,6 +5591,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </div>
         <ul>
           <li>&bull; 对话链路：Web 经业务 API 创建 run 并订阅 SSE</li>
+          <li>&bull; 会话与消息：业务 API 持会话仓储并消费 Agent 事件后写入</li>
           <li>&bull; insurance-agent 独立启动、配置和部署</li>
         </ul>
       </div>
@@ -5613,7 +5614,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </div>
         <ul>
           <li>&bull; 当前不实现续保、报价、核保、材料或问答业务</li>
-          <li>&bull; 对话不持久化、无鉴权与断线重连，不注册业务 custom tools</li>
+          <li>&bull; 会话与消息仅由业务 API 进程内保存，无鉴权与断线续接，不注册业务 custom tools</li>
         </ul>
       </div>
     </div>

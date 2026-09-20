@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { installChatApiMock, offlineChatApi } from "./chat-api-mock";
 
 // front-init 验收测试：覆盖 delta spec workbench-shell 的全部 scenario。
 // 页面为纯静态壳，无后端依赖；Playwright 通过 webServer 拉起 Vite dev server。
@@ -108,6 +109,8 @@ test.describe("保司选择状态切换", () => {
   });
 
   test("取消选中一家保司：状态变回请选择且无网络请求", async ({ page }) => {
+    // 会话区域需要后端参与：用空历史替身避免首屏请求失败干扰本用例。
+    await installChatApiMock(page, { sessions: [] });
     await page.goto("/");
 
     const failedRequests: string[] = [];
@@ -181,6 +184,8 @@ test.describe("桌面优先自适应布局", () => {
 
 test.describe("无后端服务的静态展示", () => {
   test("无后端环境打开页面：区域完整展示，本地交互可用", async ({ page }) => {
+    // 显式模拟后端不可达：不依赖开发机是否在默认端口跑着真实 API。
+    await offlineChatApi(page);
     // 页面不依赖任何 API；仅放行 Vite dev server 自身的资源请求（baseURL 在 playwright.config.ts 固定为 localhost:5173）
     const DEV_SERVER_ORIGIN = "http://localhost:5173";
     const externalRequests: string[] = [];
@@ -193,11 +198,19 @@ test.describe("无后端服务的静态展示", () => {
 
     await page.goto("/");
 
-    // 四个区域完整展示，页面无错误状态
+    // 四个区域完整展示；首屏历史会话请求失败只影响会话区域
     await expect(page.getByRole("banner")).toBeVisible();
     await expect(page.getByRole("main")).toBeVisible();
     await expect(page.getByRole("region", { name: "最新报价" })).toBeVisible();
     await expect(page.getByRole("region", { name: "保司设置" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "AI智能车险助手" }),
+    ).toBeVisible();
+    await expect(page.locator(".chat-composer")).toBeVisible();
+
+    // 历史会话区域展示自身的加载失败状态与重试入口，不影响其余区域
+    await expect(page.getByText("历史会话加载失败")).toBeVisible();
+    await expect(page.getByRole("button", { name: "重试" })).toBeVisible();
 
     // 报价隐藏切换与保司选择切换均可用
     await page.getByRole("button", { name: "隐藏" }).click();

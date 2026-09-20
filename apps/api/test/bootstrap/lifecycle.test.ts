@@ -87,6 +87,17 @@ describe("api 进程生命周期", () => {
     });
     expect(invalid.status).toBe(400);
 
+    // 会话路由已装配到组合根：可创建并列出会话（本次为进程内存储）。
+    const created = await fetch(`${started.address}/api/chat/sessions`, {
+      method: "POST",
+    });
+    expect(created.status).toBe(201);
+    const listed = await fetch(`${started.address}/api/chat/sessions`);
+    expect(listed.status).toBe(200);
+    await expect(listed.json()).resolves.toMatchObject({
+      sessions: [{ title: "新会话", titleSource: "default" }],
+    });
+
     child.kill("SIGTERM");
     await expect(waitForExit(child)).resolves.toBe(0);
   });

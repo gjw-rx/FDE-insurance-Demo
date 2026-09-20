@@ -29,6 +29,7 @@ Pi 官方提供两种适合本项目的嵌入方式：
 
 ```text
 React Web
+  -> 业务 API：POST /api/chat/sessions，GET /api/chat/sessions，PATCH /api/chat/sessions/:sessionId
   -> 业务 API：POST /api/chat/runs，GET /api/chat/runs/:runId/events（SSE）
 Fastify API
   -> internal HTTP: create / abort
@@ -38,7 +39,9 @@ insurance-agent
   <- session.subscribe(event)
 ```
 
-Pi SDK 管理模型交互、单次 run 上下文、loop、只读工具、压缩和原始事件。`insurance-agent` 管理并发、超时、终态和内存事件重放；业务 API 只持有 typed client。鉴权、业务 session、案件和业务事件持久化均由后续 change 实现。
+Pi SDK 管理模型交互、单次 run 上下文、loop、只读工具、压缩和原始事件。`insurance-agent` 管理并发、超时、终态和内存事件重放；业务 API 只持有 typed client，并额外持有会话仓储与 run 协调器：由 API 侧唯一的消费者持续读取上游 SSE，把 `answer.delta` 收敛为一条助手消息、在终态写入稳定状态，并向当前浏览器订阅者广播（见 change `add-chat-session-management` 的 design D6）。因此浏览器中途断开不会中断 Agent run。
+
+当前会话与消息只保存在业务 API 进程内，重启后清空；鉴权与跨重启持久化由后续 change 实现。
 
 ## 当前内部服务契约
 
@@ -66,26 +69,30 @@ Pi SDK 管理模型交互、单次 run 上下文、loop、只读工具、压缩�
 
 ## 当前公开对话接口
 
-| Method | Path                           | 结果                                                          |
-| ------ | ------------------------------ | ------------------------------------------------------------- |
-| `GET`  | `/health/live`                 | 进程存活探针                                                  |
-| `POST` | `/api/chat/runs`               | 校验 `{ sessionId, runId, message }` 后转发创建 run，返回 202 |
-| `GET`  | `/api/chat/runs/:runId/events` | 代理 run 事件流；`id` 为 cursor，`data` 为稳定事件 JSON       |
+| Method  | Path                                | 结果                                                      |
+| ------- | ----------------------------------- | --------------------------------------------------------- |
+| `GET`   | `/health/live`                      | 进程存活探针                                              |
+| `POST`  | `/api/chat/sessions`                | 创建默认标题为「新会话」的空会话                          |
+| `GET`   | `/api/chat/sessions?limit=&cursor=` | 按最近更新时间倒序返回会话摘要与下一页游标                |
+| `GET`   | `/api/chat/sessions/:sessionId`     | 返回会话摘要与有序持久消息                                |
+| `PATCH` | `/api/chat/sessions/:sessionId`     | 重命名会话，返回更新后的摘要                              |
+| `POST`  | `/api/chat/runs`                    | 校验 `{ sessionId, runId, message }` 后创建 run，返回 202 |
+| `GET`   | `/api/chat/runs/:runId/events`      | 广播 run 事件流；`id` 为 cursor，`data` 为稳定事件 JSON   |
 
-错误响应复用 contracts 的稳定错误码与 `retryable`；连接、超时与协议错误统一映射为 `SERVICE_NOT_READY`，不透出内部地址或堆栈。`sessionId` 与 `runId` 由浏览器在页面生命周期内临时生成：同一页面复用同一 `sessionId`，每次发送生成新 `runId`；首版不持久化、不恢复、不支持 SSE 断线续接与停止接口，也不提供鉴权。
+错误响应复用 contracts 的稳定错误码与 `retryable`（会话资源新增 `CHAT_SESSION_NOT_FOUND` 与 `CHAT_SESSION_STORE_UNAVAILABLE`）；连接、超时与协议错误统一映射为 `SERVICE_NOT_READY`，不透出内部地址或堆栈。`sessionId` 由业务 API 在 `POST /api/chat/sessions` 时生成，浏览器不再自行生成；每次发送生成新的 `runId`。当前仍不提供鉴权、跨重启持久化、SSE 断线续接与停止接口。
 
 ## 后续业务接口（不在当前 change）
 
-| API                                                   | 作用                       |
-| ----------------------------------------------------- | -------------------------- |
-| `POST /api/sessions`                                  | 创建业务会话与续保案件     |
-| `GET /api/sessions/{sessionId}`                       | 恢复案件快照和最近运行摘要 |
-| `POST /api/sessions/{sessionId}/messages`             | 提交一条消息并返回 runId   |
-| `GET /api/sessions/{sessionId}/events?after={cursor}` | SSE 续接业务事件           |
-| `POST /api/renewals/{renewalCaseId}/materials`        | 上传材料并创建识别任务     |
-| `PATCH /api/renewals/{renewalCaseId}/fields`          | 保存/确认五项资料          |
-| `POST /api/renewals/{renewalCaseId}/quotes`           | 发起报价                   |
-| `POST /api/renewals/{renewalCaseId}/underwriting`     | 服务端门禁后提交核保       |
+| API                                                   | 作用                                                                                    |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `POST /api/sessions`                                  | 创建业务会话与续保案件（对话会话已由 `/api/chat/sessions` 实现，案件关联待后续 change） |
+| `GET /api/sessions/{sessionId}`                       | 恢复案件快照和最近运行摘要                                                              |
+| `POST /api/sessions/{sessionId}/messages`             | 提交一条消息并返回 runId                                                                |
+| `GET /api/sessions/{sessionId}/events?after={cursor}` | SSE 续接业务事件                                                                        |
+| `POST /api/renewals/{renewalCaseId}/materials`        | 上传材料并创建识别任务                                                                  |
+| `PATCH /api/renewals/{renewalCaseId}/fields`          | 保存/确认五项资料                                                                       |
+| `POST /api/renewals/{renewalCaseId}/quotes`           | 发起报价                                                                                |
+| `POST /api/renewals/{renewalCaseId}/underwriting`     | 服务端门禁后提交核保                                                                    |
 
 以上会话与续保接口尚未实现（除上方已列出的对话接口外）。后续 change 需要把 Agent 事件转换为稳定业务事件；前端不得解析 Agent 文本来判断 `canSubmit`、报价或核保状态。
 
@@ -93,16 +100,16 @@ Pi SDK 管理模型交互、单次 run 上下文、loop、只读工具、压缩�
 
 可以通过统一 ID 查询整条链路，但统一入口应是项目自己的 `sessionId`，不是 Pi 的内部 ID。
 
-| ID                 | 归属       | 生命周期与用途                 |
-| ------------------ | ---------- | ------------------------------ |
-| `sessionId`        | 业务系统   | 用户一次连续交互；统一查询入口 |
-| `renewalCaseId`    | Renewal    | 一笔续保业务，可跨多次运行     |
-| `piSessionId`      | Pi         | Agent 上下文恢复和诊断         |
-| `runId`            | 业务系统   | 一次消息或任务运行             |
-| `traceId`          | 可观测系统 | 一次运行的跨服务调用链         |
-| `insurerRequestId` | 保险适配层 | 对应外部报价/核保请求          |
+| ID                 | 归属       | 生命周期与用途                                                 |
+| ------------------ | ---------- | -------------------------------------------------------------- |
+| `sessionId`        | 业务系统   | 由业务 API 创建的会话；可列表、可重命名；本次仅存在 API 进程内 |
+| `renewalCaseId`    | Renewal    | 一笔续保业务，可跨多次运行                                     |
+| `piSessionId`      | Pi         | Agent 上下文恢复和诊断                                         |
+| `runId`            | 业务系统   | 一次消息或任务运行；同一 `runId` 重复提交幂等                  |
+| `traceId`          | 可观测系统 | 一次运行的跨服务调用链                                         |
+| `insurerRequestId` | 保险适配层 | 对应外部报价/核保请求                                          |
 
-当前 change 只在内存中保存项目 `sessionId`、`runId` 与单次 Pi session 的运行关联，不实现数据库。未来业务会话 change 才负责持久化映射；业务查询仍以项目数据库为准。
+业务会话、消息与 run 记录由 `apps/api` 的会话仓储保存（本次为进程内实现 `InMemoryChatSessionStore`，以接口注入，后续换数据库只替换实现）；仓储不保存 Pi 内部事件，业务查询仍以项目自己的数据为准。
 
 ## 后续业务工具边界（不在当前 change）
 

@@ -47,7 +47,7 @@ apps/api ---> packages/application ---> packages/domain
 - `insurance-agent` 是独立进程，只依赖 Pi SDK 与 contracts；`api` 通过内部 HTTP/SSE typed client 调用，不在自身进程创建 Pi runtime。
 - `web` 只消费 contracts，不直接使用领域实体或 Pi SDK。
 
-当前已实现独立 Pi runtime、内部统一接口，以及最小对话链路（`connect-chat-agent-streaming` change）：浏览器经业务 API `POST /api/chat/runs` 创建 run、经 `GET /api/chat/runs/:runId/events` 订阅 SSE。仍不实现 Renewal、Material、Knowledge 等业务用例，不注册保险业务工具，也不提供鉴权、会话持久化与断线续接。
+当前已实现独立 Pi runtime、内部统一接口，以及最小对话链路（`connect-chat-agent-streaming` change）：浏览器经业务 API `POST /api/chat/runs` 创建 run、经 `GET /api/chat/runs/:runId/events` 订阅 SSE。`add-chat-session-management` change 起新增会话资源层：会话、消息与 run 记录由 `apps/api` 的会话仓储（接口注入，当前为 `InMemoryChatSessionStore`）保存，由 API 侧唯一 run 协调器消费上游事件并在终态写入回答，浏览器只订阅业务 API 广播。仍不实现 Renewal、Material、Knowledge 等业务用例，不注册保险业务工具，也不提供鉴权、跨重启持久化与断线续接。
 
 ## 两条执行路径
 
@@ -69,14 +69,14 @@ apps/api ---> packages/application ---> packages/domain
 
 ## 状态与事实来源
 
-| 数据                 | 事实来源                        |
-| -------------------- | ------------------------------- |
-| 续保案件和五项资料   | 业务数据库                      |
-| 原始材料             | 对象存储，数据库保存元数据      |
-| 报价、核保、出单状态 | 业务数据库 + 保险公司请求记录   |
-| 对话与业务事件       | 会话/事件存储                   |
-| Pi 上下文            | Pi session 存储或数据库恢复条目 |
-| 排障链路             | trace/log backend               |
+| 数据                 | 事实来源                                                   |
+| -------------------- | ---------------------------------------------------------- |
+| 续保案件和五项资料   | 业务数据库                                                 |
+| 原始材料             | 对象存储，数据库保存元数据                                 |
+| 报价、核保、出单状态 | 业务数据库 + 保险公司请求记录                              |
+| 对话与业务事件       | 会话/事件存储（当前为业务 API 进程内会话仓储，重启即清空） |
+| Pi 上下文            | Pi session 存储或数据库恢复条目                            |
+| 排障链路             | trace/log backend                                          |
 
 模型回复、Pi JSONL 文件和浏览器状态都不能覆盖业务数据库中的续保状态。
 
@@ -93,8 +93,8 @@ apps/api ---> packages/application ---> packages/domain
 - 可交互 HTML：[system-architecture.html](../../artifacts/architecture/system-architecture.html)
 - 类型与质量配置：architecture / showcase
 - 图中展示用户与 React Web、业务 API、用例路由、续保和快速问答路径，以及 Pi Agent Runtime、受控保险业务工具、保险公司接口、知识库、业务数据库和材料对象存储之间的边界与连接。
-- 实线表示已实现的连接（含 Web → 业务 API 的对话 API 与 SSE 事件），虚线表示后续 change 的用例；底部卡片区分“当前 change”“Pi 安全边界”与“明确非目标”。
-- Archify showcase 校验：9 项检查全部通过，composition 错误和警告均为 0。
-- 图源 SHA-256 `cddcdb2b9cac52a863d472c18e4b19c1d668ce8bb49be4ebb785f55eefc305e2`（5480 字节），HTML SHA-256 `f18afaa4de9c74af8261962590305fde6995252158d68dd2f9d6967d9eeedb00`（815628 字节）。
-- 自动浏览器证据：[检查报告](../../artifacts/architecture/system-architecture.visual-check.json) · [截图总览](../../artifacts/architecture/system-architecture.visual-check.html)。Chrome 检查在 1440×900 与 2048×1320 视口通过，`scrollWidth/scrollHeight` 均未超出视口，可读性检查通过；截图覆盖两个视口的浅色和深色主题。
-- 人工截图抽查：已检查 1440×900 浅色截图，未见节点遮挡、关系线穿越或标签裁切；业务 API 与 insurance-agent 节点文案与本次实现一致。
+- 实线表示已实现的连接（含 Web → 业务 API 的会话资源接口与对话 API/SSE 事件），虚线表示后续 change 的用例；底部卡片区分“当前 change”“Pi 安全边界”与“明确非目标”。
+- Archify validate / deliver：9 项检查全部通过，composition 错误和警告均为 0。
+- 图源 SHA-256 `15578f594961e32cc61868034ea6892e7b0bdb64f8eadf03d13952875a75bdf3`（5596 字节），HTML SHA-256 `a23946e86ef240f183d3cc6a5ae8c3e272b260e4a2910ed05110ed4cb4d10fe6`（815759 字节）。
+- 自动浏览器证据：[检查报告](../../artifacts/architecture/system-architecture.visual-check.json) · [截图总览](../../artifacts/architecture/system-architecture.visual-check.html)。Chrome 检查在 1440×900、1600×1000 与 2048×1320 视口通过，`scrollWidth/scrollHeight` 均未超出视口，可读性检查通过；截图覆盖浅色与深色主题。
+- 人工截图抽查：已重新检查本版本 1440×900 浅色截图，未见节点遮挡、关系线穿越或标签裁切；底部卡片已更新为会话内存保存的当前事实。

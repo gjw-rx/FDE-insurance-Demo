@@ -1,21 +1,23 @@
 import type { FastifyInstance } from "fastify";
 import type {
-  AgentErrorResponse,
   AgentRunEvent,
   AgentRunTerminalEventType,
-  AgentServiceErrorCode,
 } from "@renewal/contracts/agent";
-import {
-  AgentClientError,
-  type AgentServiceClient,
-} from "../../infrastructure/agent/agent-service-client.js";
+import type { ChatApiErrorCode } from "@renewal/contracts";
+import type { ChatLogger } from "../../application/chat/chat-logger.js";
+import { silentChatLogger } from "../../application/chat/chat-logger.js";
+import type {
+  ChatRunCoordinator,
+  ChatRunSubscription,
+} from "../../application/chat/chat-run-coordinator.js";
+import { chatErrorBody, toChatErrorResponse } from "./chat-http-errors.js";
 
 /**
- * 面向浏览器的公开对话接口。
+ * 面向浏览器的对话 run 接口。
  *
- * 该层只做协议适配：校验公开请求、转发到 insurance-agent typed client、
- * 把内部 SSE 编码为稳定事件流。不保存消息、不解释回答内容，也不持有
- * 任何密钥；错误只暴露稳定错误码与脱敏文案。
+ * 该层只做协议适配：校验公开请求、调用 run 协调器、把协调器事件编码为稳定 SSE。
+ * 会话与消息的保存、Agent 事件消费都由协调器负责，因此浏览器断开不会中断
+ * Agent run（见 change design.md D6）。
  */
 
 const MAX_ID_LENGTH = 128;
@@ -27,31 +29,16 @@ const TERMINAL_EVENT_TYPES: readonly AgentRunTerminalEventType[] = [
   "run.aborted",
 ];
 
-/** chat 路由依赖的最小接口：AgentServiceClient 及测试替身都满足该形状。 */
-export type ChatAgentClient = Pick<
-  AgentServiceClient,
-  "createRun" | "streamEvents"
->;
-
-/** 统一错误响应体；只暴露稳定错误码、脱敏消息与是否可重试。 */
-function errorBody(
-  code: AgentServiceErrorCode,
-  message: string,
-  retryable: boolean,
-): AgentErrorResponse {
-  return { error: { code, message, retryable } };
-}
-
-/** 非空（去空白后仍有内容）字符串类型守卫。 */
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
-
 /** 创建 run 的公开请求体（与 contracts 的 AgentRunCreateRequest 一致）。 */
 interface AgentChatCreateBody {
   readonly sessionId: string;
   readonly runId: string;
   readonly message: string;
+}
+
+/** 非空（去空白后仍有内容）字符串类型守卫。 */
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
 }
 
 /** 校验创建 run 的公开请求体；失败消息不回显输入内容。 */
@@ -94,39 +81,29 @@ function isTerminalEvent(event: AgentRunEvent): boolean {
   return TERMINAL_EVENT_TYPES.includes(event.type as AgentRunTerminalEventType);
 }
 
-/**
- * 把 AgentClientError 映射为公开错误响应。
- *
- * Agent 服务的稳定错误保留其错误码与 retryable；连接、超时与协议错误
- * 统一映射为可重试的 SERVICE_NOT_READY，不透出内部地址或原始消息。
- */
-function toPublicError(error: unknown): {
-  readonly statusCode: number;
-  readonly body: AgentErrorResponse;
-} {
-  if (
-    error instanceof AgentClientError &&
-    error.kind === "service" &&
-    error.serviceError !== undefined
-  ) {
-    return {
-      statusCode: error.statusCode ?? 503,
-      body: errorBody(
-        error.serviceError.code,
-        "Agent 服务拒绝了该请求",
-        error.serviceError.retryable,
-      ),
-    };
-  }
-  return {
-    statusCode: 503,
-    body: errorBody("SERVICE_NOT_READY", "Agent 服务暂时不可用", true),
-  };
+/** SSE 输出端：与 Fastify 的 `reply.raw` 结构兼容的最小接口。 */
+interface SseSink {
+  write(chunk: string, callback: (error?: Error | null) => void): boolean;
+}
+
+/** 写入一个 SSE 帧并等待底层写入完成。 */
+function writeFrame(raw: SseSink, payload: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    if (
+      raw.write(payload, (error) => {
+        if (error === undefined || error === null) resolve();
+        else reject(error);
+      })
+    ) {
+      resolve();
+    }
+  });
 }
 
 export interface ChatRoutesOptions {
-  /** Agent typed client（或测试替身）。 */
-  readonly agentClient: ChatAgentClient;
+  /** run 协调器：负责 Agent 调用、会话写入与事件广播。 */
+  readonly coordinator: ChatRunCoordinator;
+  readonly logger?: ChatLogger;
 }
 
 /** 注册公开对话路由：POST /api/chat/runs 与 GET /api/chat/runs/:runId/events。 */
@@ -134,45 +111,65 @@ export function registerChatRoutes(
   server: FastifyInstance,
   options: ChatRoutesOptions,
 ): void {
-  const { agentClient } = options;
+  const { coordinator } = options;
+  const logger = options.logger ?? silentChatLogger;
 
   server.post("/api/chat/runs", async (request, reply) => {
     const input = readCreateRequest(request.body);
     if (!input.ok) {
+      logger.warn("chat.run.rejected", { code: "INVALID_REQUEST" });
       return reply
         .code(400)
-        .send(errorBody("INVALID_REQUEST", input.message, false));
+        .send(chatErrorBody("INVALID_REQUEST", input.message, false));
     }
 
     try {
-      const snapshot = await agentClient.createRun(input.value);
+      const snapshot = await coordinator.startRun(input.value);
       return reply.code(202).send(snapshot);
     } catch (error) {
-      const { statusCode, body } = toPublicError(error);
-      return reply.code(statusCode).send(body);
+      const mapped = toChatErrorResponse(error);
+      logger.warn("chat.run.create-failed", { code: mapped.code });
+      return reply.code(mapped.statusCode).send(mapped.body);
     }
   });
 
   server.get("/api/chat/runs/:runId/events", async (request, reply) => {
     const { runId } = request.params as { runId: string };
 
-    // 浏览器断开时取消上游订阅；上游 run 本身不受影响。
-    const controller = new AbortController();
-    reply.raw.on("close", () => controller.abort());
+    let subscription: ChatRunSubscription;
+    try {
+      subscription = coordinator.subscribe(runId);
+    } catch (error) {
+      const mapped = toChatErrorResponse(error);
+      return reply.code(mapped.statusCode).send(mapped.body);
+    }
 
-    // generator 创建本身不执行任何代码，先拿到引用供 finally 收尾。
-    const upstream = agentClient.streamEvents(runId, {
-      signal: controller.signal,
-    });
+    // 浏览器断开只解除本次订阅；协调器继续消费并保存该 run 的后续事件。
+    const onClose = (): void => subscription.close();
+    reply.raw.on("close", onClose);
 
     try {
-      // 立即消费首个事件：上游连接错误在写出响应头之前被发现并转为 JSON 错误。
-      let current: IteratorResult<AgentRunEvent, void> = await upstream.next();
-      if (current.done) {
-        const { statusCode, body } = toPublicError(
-          new AgentClientError("protocol", "Agent SSE 没有返回任何事件"),
-        );
-        return reply.code(statusCode).send(body);
+      // 立即消费首个事件：上游未产出任何事件就结束（例如 Agent 不可达）时
+      // 在写出响应头之前转为 JSON 错误。
+      const first = await subscription.next();
+      if (first === null) {
+        // 空流说明 run 已按失败收敛（或服务正在关闭）：优先回放 Agent 的稳定
+        // 拒绝码；否则按不可重试的故障返回——重试该流不会再有结果。
+        const rejection = coordinator.getUpstreamRejection(runId);
+        if (rejection !== undefined) {
+          return reply
+            .code(rejection.statusCode ?? 503)
+            .send(
+              chatErrorBody(
+                rejection.code as ChatApiErrorCode,
+                "Agent 服务拒绝了该请求",
+                rejection.retryable,
+              ),
+            );
+        }
+        return reply
+          .code(503)
+          .send(chatErrorBody("SERVICE_NOT_READY", "服务暂时不可用", false));
       }
 
       reply.raw.writeHead(200, {
@@ -182,32 +179,30 @@ export function registerChatRoutes(
         "x-accel-buffering": "no",
       });
 
-      while (!current.done) {
-        const event = current.value;
-        const payload = `id: ${event.cursor}\ndata: ${JSON.stringify(event)}\n\n`;
-        await new Promise<void>((resolve, reject) => {
-          if (
-            reply.raw.write(payload, (error) => {
-              if (error === undefined) resolve();
-              else reject(error);
-            })
-          ) {
-            resolve();
-          }
-        });
-        if (isTerminalEvent(event)) break;
-        current = await upstream.next();
+      let current: AgentRunEvent | null = first;
+      while (current !== null) {
+        await writeFrame(
+          reply.raw,
+          `id: ${current.cursor}\ndata: ${JSON.stringify(current)}\n\n`,
+        );
+        if (isTerminalEvent(current)) break;
+        current = await subscription.next();
       }
       reply.raw.end();
-    } catch (error) {
-      // 响应头尚未写出（上游 404/连接失败）时仍可返回 JSON 错误。
+      return undefined;
+    } catch {
+      // 响应头已写出时只能直接结束，避免把内部错误写入事件流。
       if (!reply.raw.headersSent) {
-        const { statusCode, body } = toPublicError(error);
-        return reply.code(statusCode).send(body);
+        return reply
+          .code(503)
+          .send(chatErrorBody("SERVICE_NOT_READY", "服务暂时不可用", true));
       }
       reply.raw.end();
+      return undefined;
     } finally {
-      await upstream.return(undefined).catch(() => undefined);
+      subscription.close();
+      reply.raw.off("close", onClose);
+      logger.info("chat.sse.closed", { runId });
     }
   });
 }

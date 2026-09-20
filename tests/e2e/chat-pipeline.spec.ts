@@ -250,20 +250,30 @@ test("端到端链路：浏览器发送消息经真实 API 到达 fake Agent，�
     const page = await context.newPage();
 
     await page.goto(`${vite.baseUrl}/`);
+    // 首屏没有任何历史会话：会话栏提示未选择会话，先显式新建一个会话再发送。
+    await expect(page.locator(".chat-session-bar__title")).toHaveText(
+      "未选择会话",
+    );
+    await page.getByRole("button", { name: "新会话", exact: true }).click();
+    await expect(page.locator(".chat-session-bar__title")).toHaveText("新会话");
     await page
       .getByPlaceholder("输入您想咨询的车险问题...")
       .fill("链路联调测试");
     await page.getByRole("button", { name: "发送" }).click();
 
-    // 用户消息追加 + 增量合并展示
-    await expect(page.getByText("链路联调测试")).toBeVisible();
-    await expect(page.getByText("链路验证")).toBeVisible();
+    // 用户消息追加 + 增量合并展示（限定在对话区，避免与会话标题同名冲突）
+    const messageArea = page.locator(".chat-panel__messages");
+    await expect(messageArea.getByText("链路联调测试")).toBeVisible();
+    await expect(messageArea.getByText("链路验证")).toBeVisible();
 
     // fake Agent 收到一次相同长度的消息（不保存正文）
     expect(fakeAgent.runs).toHaveLength(1);
     expect(fakeAgent.runs[0]!.messageLength).toBe("链路联调测试".length);
 
-    // 完成后发送恢复
+    // 完成后发送恢复，且首条消息已由真实 API 自动命名为会话标题
+    await expect(page.locator(".chat-session-bar__title")).toHaveText(
+      "链路联调测试",
+    );
     await page.getByPlaceholder("输入您想咨询的车险问题...").fill("再次发送");
     await expect(page.getByRole("button", { name: "发送" })).toBeEnabled();
 

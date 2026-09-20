@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { installChatApiMock } from "./chat-api-mock";
 
 // dialog-function 验收测试：覆盖 delta spec workbench-shell 的新增与修改场景。
 // 输入区仅本地交互，不发起任何网络请求；越界类型场景用 setInputFiles 向隐藏 input 注入 fixture 文件。
@@ -10,28 +11,14 @@ const IMAGE_FIXTURE = "tests/e2e/fixtures/driving-license.png";
 const PDF_FIXTURE = "tests/e2e/fixtures/id-card.pdf";
 const TEXT_FIXTURE = "tests/e2e/fixtures/notes.txt";
 
-// 键盘交互用例共用的 API 替身：记录 POST 并挂起 SSE，不依赖后端。
+// 键盘交互用例共用的 API 替身：预置一个历史会话使输入区可用，并让 run 保持进行中。
 async function mockChatApi(page: Page) {
-  const posts: string[] = [];
-  await page.route("**/api/chat/runs", async (route) => {
-    posts.push(route.request().postData() ?? "");
-    await route.fulfill({
-      status: 202,
-      contentType: "application/json",
-      body: JSON.stringify({
-        agentName: "insurance-agent",
-        sessionId: "session-1",
-        runId: "run-1",
-        status: "accepted",
-        createdAt: "2026-09-15T00:00:00.000Z",
-      }),
-    });
+  const chat = await installChatApiMock(page, {
+    sessions: [{ sessionId: "session-1", title: "历史会话" }],
   });
-  await page.route("**/api/chat/runs/*/events", async () => {
-    // 挂起：流保持进行中，只验证键盘提交行为本身。
-    await new Promise(() => undefined);
-  });
-  return posts;
+  // 不发送任何事件且不结束响应：模拟进行中的 run，只验证提交行为本身。
+  chat.setRunScript({ pending: true });
+  return chat;
 }
 
 test.describe("工作台首屏区域结构（含对话输入区）", () => {
@@ -80,12 +67,13 @@ test.describe("工作台首屏区域结构（含对话输入区）", () => {
     expect(chatBox).not.toBeNull();
     expect(composerBox).not.toBeNull();
 
-    // 输入区位于对话主区内部，且贴附其内容底部（仅保留卡片下内边距 16px，允许 1px 渲染误差）
+    // 输入区位于对话主区内部，且贴附其内容底部：只保留卡片自身的下内边距
+    // （设计稿 `designs/designs/dialog/export.png` 为 20px，允许 1px 渲染误差）
     const chatBottom = chatBox!.y + chatBox!.height;
     const composerBottom = composerBox!.y + composerBox!.height;
     expect(composerBox!.y).toBeGreaterThan(chatBox!.y);
     expect(chatBottom - composerBottom).toBeGreaterThanOrEqual(0);
-    expect(chatBottom - composerBottom).toBeLessThanOrEqual(17);
+    expect(chatBottom - composerBottom).toBeLessThanOrEqual(21);
   });
 });
 
@@ -140,7 +128,7 @@ test.describe("对话输入区键盘交互", () => {
   test("按 Enter 发送：清空输入、追加用户消息并产生一次请求", async ({
     page,
   }) => {
-    const posts = await mockChatApi(page);
+    const { runPosts: posts } = await mockChatApi(page);
     await page.goto("/");
 
     const input = page.getByPlaceholder("输入您想咨询的车险问题...");
@@ -148,12 +136,17 @@ test.describe("对话输入区键盘交互", () => {
     await input.press("Enter");
 
     await expect(input).toHaveValue("");
-    await expect(page.getByText("交强险和商业险有什么区别？")).toBeVisible();
+    // 限定在对话区：首条消息会被自动用做会话标题，全局文本会出现同名元素。
+    await expect(
+      page
+        .locator(".chat-panel__messages")
+        .getByText("交强险和商业险有什么区别？"),
+    ).toBeVisible();
     expect(posts).toHaveLength(1);
   });
 
   test("Shift+Enter 换行：输入保留多行且不发送", async ({ page }) => {
-    const posts = await mockChatApi(page);
+    const { runPosts: posts } = await mockChatApi(page);
     await page.goto("/");
 
     const input = page.getByPlaceholder("输入您想咨询的车险问题...");
@@ -168,7 +161,7 @@ test.describe("对话输入区键盘交互", () => {
   });
 
   test("空输入或纯空白时按 Enter 不发送", async ({ page }) => {
-    const posts = await mockChatApi(page);
+    const { runPosts: posts } = await mockChatApi(page);
     await page.goto("/");
 
     const input = page.getByPlaceholder("输入您想咨询的车险问题...");
@@ -181,7 +174,7 @@ test.describe("对话输入区键盘交互", () => {
   });
 
   test("输入法组合态按 Enter：只上屏不发送", async ({ page }) => {
-    const posts = await mockChatApi(page);
+    const { runPosts: posts } = await mockChatApi(page);
     await page.goto("/");
 
     const input = page.getByPlaceholder("输入您想咨询的车险问题...");
@@ -201,6 +194,7 @@ test.describe("对话输入区键盘交互", () => {
 
 test.describe("对话输入区本地交互", () => {
   test("空输入时发送不可用", async ({ page }) => {
+    await mockChatApi(page);
     await page.goto("/");
 
     const send = page.getByRole("button", { name: "发送" });
@@ -214,26 +208,8 @@ test.describe("对话输入区本地交互", () => {
   test("输入内容后发送并清空：追加用户消息并产生一次业务 API 请求", async ({
     page,
   }) => {
-    // route mock：记录 POST，返回挂起 SSE，避免依赖后端。
-    const posts: string[] = [];
-    await page.route("**/api/chat/runs", async (route) => {
-      posts.push(route.request().postData() ?? "");
-      await route.fulfill({
-        status: 202,
-        contentType: "application/json",
-        body: JSON.stringify({
-          agentName: "insurance-agent",
-          sessionId: "session-1",
-          runId: "run-1",
-          status: "accepted",
-          createdAt: "2026-09-15T00:00:00.000Z",
-        }),
-      });
-    });
-    await page.route("**/api/chat/runs/*/events", async () => {
-      // 挂起：流保持进行中，仅验证发送行为本身。
-      await new Promise(() => undefined);
-    });
+    // 替身预置一个会话，run 保持进行中以验证发送后的界面状态。
+    const { runPosts: posts } = await mockChatApi(page);
 
     await page.goto("/");
 
@@ -247,7 +223,9 @@ test.describe("对话输入区本地交互", () => {
     await expect(input).toHaveValue("");
     // 用户消息追加：欢迎 + 用户消息 = 2 条
     await expect(page.locator(".chat-message")).toHaveCount(2);
-    await expect(page.getByText("我的车险续保要多少钱？")).toBeVisible();
+    await expect(
+      page.locator(".chat-panel__messages").getByText("我的车险续保要多少钱？"),
+    ).toBeVisible();
     // 活动 run 期间发送按钮不可用
     await expect(send).toBeDisabled();
     expect(posts).toHaveLength(1);
@@ -300,24 +278,7 @@ test.describe("对话输入区本地交互", () => {
         externalRequests.push(request.url());
       }
     });
-    const posts: string[] = [];
-    await page.route("**/api/chat/runs", async (route) => {
-      posts.push(route.request().postData() ?? "");
-      await route.fulfill({
-        status: 202,
-        contentType: "application/json",
-        body: JSON.stringify({
-          agentName: "insurance-agent",
-          sessionId: "session-1",
-          runId: "run-1",
-          status: "accepted",
-          createdAt: "2026-09-15T00:00:00.000Z",
-        }),
-      });
-    });
-    await page.route("**/api/chat/runs/*/events", async () => {
-      await new Promise(() => undefined);
-    });
+    const { runPosts: posts } = await mockChatApi(page);
 
     await page.goto("/");
 
