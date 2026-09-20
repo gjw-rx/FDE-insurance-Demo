@@ -4,6 +4,11 @@
 - 该规则是本项目的前端目录职责、依赖方向、React/TypeScript 实现和验证门禁基准；不得把业务组件、业务数据或通用 UI 继续堆放到 `apps/web/src/app/`。
 - 若前端规则与本文其他要求存在冲突，以本文为准；OpenSpec、文档同步和 Git 规范不因引用前端规则而豁免。
 
+## 后端开发强制规则
+
+- 凡涉及 `apps/api/**`、`apps/insurance-agent/**`、`packages/application/**`、`packages/domain/**` 或 `packages/contracts/**` 的分析、设计、编码、重构、测试与评审，开始工作前必须读取并遵守当前版本 [`.agents/rules/backend-development.md`](.agents/rules/backend-development.md)（规则名称：`backend-development`）。
+- 该规则约束 TypeScript/Node.js/Fastify 后端的目录职责、依赖方向、契约、可靠性、安全边界与验证方式；根目录要求、OpenSpec、文档同步和 Git 规范仍以本文及其引用文档为准。
+
 ## 1. 执行与澄清
 
 - 下一步明确、可逆且在授权范围内时直接执行；缺少事实先读取证据。

@@ -5,7 +5,9 @@
 ## 项目规则
 
 - [`rules/fronted-development.md`](./rules/fronted-development.md)：`fronted开发规范`，适用于 `apps/web/**` 与 `tests/e2e/**`，规定前端目录职责、依赖方向、实现约束和验证门禁。
+- [`rules/backend-development.md`](./rules/backend-development.md)：`backend-development`，适用于 `apps/api/**`、`apps/insurance-agent/**` 与后端共享包，规定 TypeScript/Node.js/Fastify 后端的边界、契约、安全、可靠性和验证约束。
 - 前端工作必须先按根 [`AGENTS.md`](../AGENTS.md) 的强制入口读取该规则；根规则优先级高于目录内专项规则。
+- 后端工作必须先按根 [`AGENTS.md`](../AGENTS.md) 的强制入口读取该规则；根规则优先级高于目录内专项规则。
 
 ## 文档检查
 
