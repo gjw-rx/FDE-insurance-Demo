@@ -1,7 +1,7 @@
-import { createAgentRunSession } from "../runtime/agent-session.js";
-import { loadAgentConfig } from "../config/agent-config.js";
-import { loadAgentModelRuntime } from "../runtime/agent-model-runtime.js";
-import { loadAgentResources } from "../runtime/agent-resources.js";
+import { createAgentRunSession } from "../runtime/agent_session.js";
+import { loadAgentConfig } from "../config/agent_config.js";
+import { loadAgentModelRuntime } from "../runtime/agent_model_runtime.js";
+import { loadAgentResources } from "../runtime/agent_resources.js";
 
 /** 受控冒烟：需要显式 INSURANCE_AGENT_API_KEY，只输出成功状态，不输出回答正文。 */
 async function smoke(): Promise<void> {

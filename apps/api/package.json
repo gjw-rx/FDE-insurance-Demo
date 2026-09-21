@@ -15,9 +15,7 @@
   },
   "dependencies": {
     "@fastify/cors": "11.3.0",
-    "@renewal/application": "workspace:*",
     "@renewal/contracts": "workspace:*",
-    "@renewal/domain": "workspace:*",
     "drizzle-orm": "0.45.2",
     "fastify": "5.12.4",
     "mysql2": "3.24.4"

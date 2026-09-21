@@ -3,11 +3,11 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   describeDatabaseTarget,
   loadDatabaseConfig,
-} from "../config/database-config.js";
+} from "../platform/config/database_config.js";
 import {
   describeMigrateFailure,
   migrateDatabase,
-} from "../infrastructure/database/migrate-database.js";
+} from "../platform/database/migrate_database.js";
 
 /**
  * 迁移进程入口。

@@ -31,19 +31,24 @@
 ## 包与依赖方向
 
 ```text
-apps/web ----------------------------> packages/contracts
+apps/web --------------------------------------> packages/contracts
 
-apps/api ---> packages/application ---> packages/domain
-    |                   |
-    +-------------------+-------------> packages/contracts
-    |
-    +-- HTTP/SSE --> apps/insurance-agent --> Pi SDK
-    +-- DB / OCR / Knowledge / Insurer adapters
+apps/api/src/modules/conversation/domain
+apps/api/src/modules/conversation/application
+apps/api/src/modules/conversation/infrastructure
+apps/api/src/modules/conversation/interfaces/http
+                     |
+                     +------------------------> packages/contracts
+                     |
+                     +-- HTTP/SSE ------------> apps/insurance-agent --> Pi SDK
+                     +-- DB / OCR / Knowledge / Insurer adapters
 ```
 
-- `domain` 不依赖任何其他 workspace 包。
-- `application` 依赖 `domain` 和 `contracts`，定义用例和端口。
-- `api` 实现端口并完成依赖装配。
+- 每个限界上下文位于 `apps/api/src/modules/<bounded_context>/`，内部按 `domain`、`application`、`infrastructure`、`interfaces` 分层。
+- `domain` 只包含领域规则，不依赖 Fastify、Drizzle、Pi SDK 或具体外部服务。
+- `application` 定义用例和端口；`infrastructure` 实现端口；`interfaces` 负责 HTTP/SSE 协议适配。
+- `platform` 只提供配置、数据库连接、日志和健康探针等技术能力，不承载业务规则。
+- `apps/api/src/bootstrap` 是组合根，通过各模块的 `*_module.ts` 完成依赖装配。
 - `insurance-agent` 是独立进程，只依赖 Pi SDK 与 contracts；`api` 通过内部 HTTP/SSE typed client 调用，不在自身进程创建 Pi runtime。
 - `web` 只消费 contracts，不直接使用领域实体或 Pi SDK。
 

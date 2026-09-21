@@ -234,15 +234,9 @@ importers:
       "@fastify/cors":
         specifier: 11.3.0
         version: 11.3.0
-      "@renewal/application":
-        specifier: workspace:*
-        version: link:../../packages/application
       "@renewal/contracts":
         specifier: workspace:*
         version: link:../../packages/contracts
-      "@renewal/domain":
-        specifier: workspace:*
-        version: link:../../packages/domain
       drizzle-orm:
         specifier: 0.45.2
         version: 0.45.2(mysql2@3.24.4(@types/node@24.10.1))

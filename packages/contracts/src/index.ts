@@ -9,5 +9,5 @@
  * 在运行时按它校验取值，不能只作为类型存在。
  */
 export * from "./agent/index.js";
-export * from "./chat/index.js";
+export * from "./conversation/index.js";
 export type * from "./health/index.js";

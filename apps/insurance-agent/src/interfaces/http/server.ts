@@ -6,12 +6,12 @@ import type {
   AgentRunTerminalEventType,
   AgentServiceErrorCode,
 } from "@renewal/contracts/agent";
-import type { AgentConfig } from "../../config/agent-config.js";
+import type { AgentConfig } from "../../config/agent_config.js";
 import type {
   AgentRunCreateInput,
   AgentRunLogger,
   AgentRunRegistry,
-} from "../../runtime/run-registry.js";
+} from "../../runtime/run_registry.js";
 
 /**
  * 内部 HTTP/SSE 契约。

@@ -9,4 +9,4 @@
  * 字段与表的中文注释只维护在迁移 SQL 内（`drizzle-orm@0.45.2` 无列注释 API），
  * 表结构约束见 `.agents/rules/database-schema-design.md`。
  */
-export * from "./chat-schema.js";
+export * from "./conversation_schema.js";

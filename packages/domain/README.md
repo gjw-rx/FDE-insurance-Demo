@@ -1,11 +1,11 @@
-# Domain
+# Domain（已废弃占位）
 
-纯 TypeScript 领域层，不依赖 React、Fastify、Pi SDK、数据库或网络客户端。
+当前业务领域代码已按限界上下文迁移到 `apps/api/src/modules/<bounded_context>/domain/`。
+
+例如 Conversation 领域代码位于：
 
 ```text
-src/
-├── renewal/                # RenewalCase 聚合、五项资料值对象、状态和领域错误
-└── session/                # BusinessSession 聚合与 Agent 运行关联
+apps/api/src/modules/conversation/domain/
 ```
 
-续保五项固定为：VIN、发动机号、身份证号、车主姓名、车牌号。是否允许提交核保属于领域规则，不能放在提示词或前端判断中。
+该 workspace 包暂不承载生产代码，保留目录只是为了兼容现有 workspace 配置。新增领域代码不要放回这里。

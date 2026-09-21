@@ -1,18 +1,18 @@
 import type { AgentNotReadyReason } from "@renewal/contracts/agent";
-import type { AgentConfig } from "../config/agent-config.js";
-import { loadAgentConfig } from "../config/agent-config.js";
+import type { AgentConfig } from "../config/agent_config.js";
+import { loadAgentConfig } from "../config/agent_config.js";
 import { createAgentHttpServer } from "../interfaces/http/server.js";
-import { loadAgentModelRuntime } from "../runtime/agent-model-runtime.js";
+import { loadAgentModelRuntime } from "../runtime/agent_model_runtime.js";
 import {
   loadAgentResources,
   readConfiguredContextFiles,
-} from "../runtime/agent-resources.js";
-import { createAgentRunSession } from "../runtime/agent-session.js";
-import { createRunEventProjector } from "../runtime/run-event-projector.js";
+} from "../runtime/agent_resources.js";
+import { createAgentRunSession } from "../runtime/agent_session.js";
+import { createRunEventProjector } from "../runtime/run_event_projector.js";
 import {
   AgentRunRegistry,
   type AgentRunLogger,
-} from "../runtime/run-registry.js";
+} from "../runtime/run_registry.js";
 
 /**
  * 结构化运行日志：JSON 行输出，与启动日志同构。

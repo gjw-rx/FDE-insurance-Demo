@@ -8,20 +8,22 @@ MySQL 连接、迁移与就绪检查由 `introduce-mysql-storage` 建立；本 c
 
 ```text
 src/
-├── bootstrap/              # application factory 与进程入口
-│   ├── application.ts      # 装配配置、数据库、会话仓储、会话服务、run 协调器与公开路由
-│   ├── main.ts             # 进程启动与 SIGINT/SIGTERM 优雅关闭
-│   └── migrate.ts          # 迁移命令入口（发布阶段显式执行）
-├── application/chat/       # 会话应用服务、仓储端口、run 协调器与标题规则
-├── config/                 # 运行配置与环境变量校验（含数据库连接）
-├── interfaces/http/        # Fastify 路由、健康探针、请求校验与错误转换
-└── infrastructure/
-    ├── agent/              # insurance-agent 内部 HTTP/SSE typed client
-    ├── database/           # MySQL 连接池、Drizzle 查询句柄、就绪检查与迁移执行
-    ├── observability/      # JSON 行结构化日志实现
-    ├── persistence/        # 会话仓储（MySQL 实现）、受控取值校验与进程内测试替身
-    ├── insurer/            # 各保险公司防腐层（后续）
-    └── knowledge/          # 保险知识库适配器（后续）
+├── bootstrap/              # API 进程入口、生命周期和平台/模块装配
+├── modules/
+│   ├── conversation/       # Conversation 限界上下文
+│   │   ├── domain/         # 会话标题、run 生命周期等领域规则
+│   │   ├── application/    # 用例、端口、读模型与 run 协调器
+│   │   ├── infrastructure/ # MySQL 仓储、内存替身、Agent 客户端
+│   │   ├── interfaces/http/ # 会话 HTTP 与 run SSE 路由
+│   │   └── conversation_module.ts # 模块内部依赖装配入口
+│   ├── renewal/            # 续保限界上下文（后续）
+│   ├── material/           # 材料限界上下文（后续）
+│   └── knowledge/          # 知识限界上下文（后续）
+└── platform/
+    ├── config/             # 运行配置与环境变量校验
+    ├── database/           # MySQL 连接池、就绪检查与迁移执行
+    ├── http/               # 健康探针等平台级 HTTP 能力
+    └── observability/      # JSON 行结构化日志实现
 ```
 
 `drizzle/` 保存 schema 与迁移：`0000_baseline` 是不创建业务表的空基线，`0001_chat_session_tables` 创建会话三表。字段与表的中文注释只维护在迁移 SQL 内（当前 `drizzle-orm` 没有列注释 API），因此迁移生成后需人工补齐注释并经评审。
@@ -77,4 +79,4 @@ corepack pnpm --filter @renewal/api db:migrate       # 发布阶段显式迁移
 
 浏览器不直连 `insurance-agent`：开发环境由 Vite 将同源 `/api` 代理到本 API，生产环境由同源网关提供相同路径，因此当前不注册 CORS。
 
-依赖规则：API 可以依赖 `application`、`domain` 和 `contracts`；这些内部包不得反向依赖 API 或 Fastify。`apps/api` 不直接依赖或初始化 Pi SDK，只通过 `src/infrastructure/agent/agent-service-client.ts` 使用 create/events/abort 传输接口；续保、报价、核保和材料等业务由后续 change 实现。会话仓储与会话服务通过接向接口协作，测试可注入替身。
+依赖规则：业务模块内部遵循 `interfaces -> application -> domain`，基础设施实现 application 定义的端口；`platform` 不包含业务规则。`apps/api` 不直接依赖或初始化 Pi SDK，只通过 `modules/conversation/infrastructure/agent/agent_service_client.ts` 使用 create/events/abort 传输接口；续保、报价、核保和材料等业务由后续模块实现。会话仓储与会话服务通过接口协作，测试可注入替身。

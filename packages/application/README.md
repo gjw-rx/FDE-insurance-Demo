@@ -1,11 +1,11 @@
-# Application
+# Application（已废弃占位）
 
-应用层组织用例和端口，不包含 Fastify 路由或具体 SDK 调用。
+当前应用层代码已按限界上下文迁移到 `apps/api/src/modules/<bounded_context>/application/`。
+
+例如 Conversation 应用层位于：
 
 ```text
-src/
-├── ports/                  # 仓储、Pi、知识检索、保险公司和 ID 生成端口
-└── use-cases/              # 创建会话、更新资料、提交核保、快速问答
+apps/api/src/modules/conversation/application/
 ```
 
-依赖方向：`application -> domain + contracts`。基础设施通过依赖注入实现端口。
+该 workspace 包暂不承载生产代码，保留目录只是为了兼容现有 workspace 配置。新增用例和端口不要放回这里。

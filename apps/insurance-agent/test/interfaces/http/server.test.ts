@@ -10,8 +10,8 @@ import {
   createRegistryHarness,
   hanging,
   type RegistryHarness,
-} from "../../support/agent-fixtures.js";
-import type { AgentRunLogger } from "../../../src/runtime/run-registry.js";
+} from "../../support/agent_fixtures.js";
+import type { AgentRunLogger } from "../../../src/runtime/run_registry.js";
 
 const servers: FastifyInstance[] = [];
 

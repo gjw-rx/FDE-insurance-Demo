@@ -2,16 +2,16 @@ import type { FastifyInstance } from "fastify";
 import { afterEach, describe, expect, it } from "vitest";
 import type { AgentRunEvent } from "@renewal/contracts/agent";
 import type { AgentSessionEvent } from "@earendil-works/pi-coding-agent";
-import { createRunEventProjector } from "../../../src/runtime/run-event-projector.js";
+import { createRunEventProjector } from "../../../src/runtime/run_event_projector.js";
 import {
   buildConfig,
   createRecordingLogger,
   createRegistryHarness,
   hanging,
   type RegistryHarness,
-} from "../../support/agent-fixtures.js";
+} from "../../support/agent_fixtures.js";
 import { createAgentHttpServer } from "../../../src/interfaces/http/server.js";
-import type { AgentRunLogger } from "../../../src/runtime/run-registry.js";
+import type { AgentRunLogger } from "../../../src/runtime/run_registry.js";
 
 const servers: FastifyInstance[] = [];
 
