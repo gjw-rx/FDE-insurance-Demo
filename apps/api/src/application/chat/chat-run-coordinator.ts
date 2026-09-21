@@ -135,6 +135,7 @@ class RunChannel {
   readonly runId: string;
   readonly createdAt: number;
   readonly events: AgentRunEvent[] = [];
+  private readonly answerChunks: string[] = [];
   private readonly listeners = new Set<() => void>();
   private terminal = false;
   private terminalAt: number | undefined;
@@ -156,6 +157,14 @@ class RunChannel {
   /** 无终态结束时的上游稳定拒绝；未记录（上游静默结束/进程关闭）为 undefined。 */
   get rejectedWith(): ChatRunUpstreamRejection | undefined {
     return this.rejection;
+  }
+
+  appendAnswerDelta(text: string): void {
+    this.answerChunks.push(text);
+  }
+
+  get answerText(): string {
+    return this.answerChunks.join("");
   }
 
   publish(event: AgentRunEvent, now: number): void {
@@ -347,7 +356,11 @@ export class ChatRunCoordinator {
     for (const channel of this.channels.values()) {
       if (channel.finished) continue;
       await this.sessions
-        .finishRun({ runId: channel.runId, status: "failed" })
+        .finalizeAssistantAnswer({
+          runId: channel.runId,
+          text: channel.answerText,
+          status: "failed",
+        })
         .catch(() => undefined);
       channel.finish(this.now());
       this.logger.warn("chat.run.interrupted", { runId: channel.runId });
@@ -363,25 +376,19 @@ export class ChatRunCoordinator {
   }
 
   private async consumeUpstream(channel: RunChannel): Promise<void> {
-    let assistantStarted = false;
     try {
       for await (const event of this.agentClient.streamEvents(channel.runId)) {
+        if (channel.finished) return;
         if (event.type === "answer.delta") {
-          if (!assistantStarted) {
-            await this.sessions.startAssistantAnswer(channel.runId);
-            assistantStarted = true;
-          }
-          // 先落库再广播，保证订阅者读到与事件一致的会话内容。
-          await this.sessions.appendAnswerDelta({
-            runId: channel.runId,
-            text: event.text,
-          });
+          // 分片只在进程内暂存并立即广播，不等待数据库写入。
+          channel.appendAnswerDelta(event.text);
           channel.publish(event, this.now());
           continue;
         }
         if (isTerminalEvent(event)) {
-          await this.sessions.finishRun({
+          await this.sessions.finalizeAssistantAnswer({
             runId: channel.runId,
+            text: channel.answerText,
             status: toFinishStatus(event),
           });
           channel.publish(event, this.now());
@@ -390,8 +397,9 @@ export class ChatRunCoordinator {
         channel.publish(event, this.now());
       }
       // 上游在终态前结束：按失败收敛并结束订阅，用户看到的是通用失败提示。
-      await this.sessions.finishRun({
+      await this.sessions.finalizeAssistantAnswer({
         runId: channel.runId,
+        text: channel.answerText,
         status: "failed",
       });
       channel.finish(this.now());
@@ -401,7 +409,11 @@ export class ChatRunCoordinator {
       // Agent 稳定拒绝则记录在通道上，供 SSE 空流时回放给订阅者。
       const rejection = toUpstreamRejection(error);
       await this.sessions
-        .finishRun({ runId: channel.runId, status: "failed" })
+        .finalizeAssistantAnswer({
+          runId: channel.runId,
+          text: channel.answerText,
+          status: "failed",
+        })
         .catch(() => undefined);
       channel.finish(this.now(), rejection);
       this.logger.warn("chat.run.stream-failed", { runId: channel.runId });

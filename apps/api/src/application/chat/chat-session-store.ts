@@ -78,10 +78,20 @@ export interface StartAssistantMessageParams {
   readonly createdAt: string;
 }
 
-/** 追加回答增量。 */
+/** 追加回答增量（兼容旧仓储测试与历史调用方）。 */
 export interface AppendAssistantDeltaParams {
   readonly runId: string;
   readonly text: string;
+  readonly updatedAt: string;
+}
+
+/** 在 run 终态一次性写入助手回答。 */
+export interface FinalizeAssistantAnswerParams {
+  readonly runId: string;
+  readonly messageId: string;
+  readonly text: string;
+  readonly status: ChatRunFinishStatus;
+  readonly createdAt: string;
   readonly updatedAt: string;
 }
 
@@ -138,6 +148,10 @@ export interface ChatSessionStore {
   ): Promise<ChatMessageRecord>;
 
   appendAssistantDelta(params: AppendAssistantDeltaParams): Promise<void>;
+
+  finalizeAssistantAnswer(
+    params: FinalizeAssistantAnswerParams,
+  ): Promise<ChatRunRecord>;
 
   setRunFinished(params: SetRunFinishedParams): Promise<ChatRunRecord>;
 

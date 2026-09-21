@@ -321,6 +321,23 @@ export class ChatSessionService {
     });
   }
 
+  /** 在 run 终态一次性写入助手回答，并同步收敛 run。 */
+  async finalizeAssistantAnswer(params: {
+    readonly runId: string;
+    readonly text: string;
+    readonly status: ChatRunFinishStatus;
+  }): Promise<void> {
+    const now = this.clock().toISOString();
+    await this.store.finalizeAssistantAnswer({
+      runId: params.runId,
+      messageId: this.newId(),
+      text: params.text,
+      status: params.status,
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+
   /** 收敛 run 终态，并同步助手消息状态。 */
   async finishRun(params: {
     readonly runId: string;

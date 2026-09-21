@@ -32,17 +32,17 @@
 
 ### Requirement: 业务 API 代理 Agent SSE 事件
 
-系统 SHALL 提供 `GET /api/chat/runs/:runId/events` SSE 接口，通过既有内部 typed client 订阅对应 run，并按 cursor 顺序向浏览器发送 `AgentRunEvent`。每个 SSE 事件 SHALL 使用事件 cursor 作为 `id`，并以 JSON `data` 承载稳定事件；API SHALL NOT 转发内部实现对象或新增敏感字段。系统 SHALL 将同一 run 的回答增量收敛为一条助手消息，并在终态到达时持久化可恢复的回答与稳定状态。
+系统 SHALL 提供 `GET /api/chat/runs/:runId/events` SSE 接口，通过既有内部 typed client 订阅对应 run，并按 cursor 顺序向浏览器发送 `AgentRunEvent`。每个 SSE 事件 SHALL 使用事件 cursor 作为 `id`，并以 JSON `data` 承载稳定事件；API SHALL NOT 转发内部实现对象或新增敏感字段。系统 SHALL 将同一 run 的回答增量在服务端内存中按顺序暂存，增量期间不得逐片写入数据库，并在终态到达或流异常结束时一次性持久化可恢复的完整/部分回答与稳定状态。
 
 #### Scenario: 流式返回回答
 
 - **WHEN** 浏览器订阅一个已接受 run，且 `insurance-agent` 产生回答增量和完成事件
-- **THEN** API 以 `text/event-stream` 按 cursor 顺序发送 `answer.delta`，随后发送唯一的 `run.completed` 终态并关闭响应，同时会话详情可读取完整助手回答
+- **THEN** API 以 `text/event-stream` 按 cursor 顺序发送 `answer.delta`，增量发送不因助手正文写库而等待，随后在一次最终持久化成功后发送唯一的 `run.completed` 终态并关闭响应，同时会话详情可读取完整助手回答
 
 #### Scenario: Agent run 失败
 
 - **WHEN** 已订阅 run 产生 `run.failed` 或 `run.aborted` 终态
-- **THEN** API 转发该唯一终态、保存稳定失败状态并关闭 SSE 响应，不把内部错误详情写入事件或历史消息
+- **THEN** API 先一次性保存此前已收到的非空部分回答（如有）和稳定失败状态，再转发该唯一终态并关闭 SSE 响应，不把内部错误详情写入事件或历史消息
 
 #### Scenario: 订阅不存在的 run
 
@@ -52,7 +52,7 @@
 #### Scenario: 浏览器断开订阅
 
 - **WHEN** 浏览器在 run 终态前关闭 SSE 连接或离开页面
-- **THEN** API 取消对应的浏览器上游事件订阅并释放连接资源，但不主动停止该 Agent run；服务端仍负责消费并保存其后续终态
+- **THEN** API 取消对应的浏览器上游事件订阅并释放连接资源，但不主动停止该 Agent run；服务端仍负责消费、缓冲并在终态保存其后续回答与状态
 
 ### Requirement: 前端发送并流式展示文本消息
 

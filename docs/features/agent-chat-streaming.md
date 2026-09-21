@@ -12,7 +12,7 @@
 
 - 业务 API 提供两个公开接口：`POST /api/chat/runs`（创建 run）与 `GET /api/chat/runs/:runId/events`（SSE 订阅 run 事件），复用现有 `AgentServiceClient` 转发到 `insurance-agent` 内部接口。
 - 前端发送非空文本后立即追加用户消息，订阅 SSE 并把同一 run 的 `answer.delta` 按顺序拼接为一条助手消息，终态后恢复发送。
-- 会话由业务 API 保存：run 必须关联已存在的 `sessionId`，用户消息在创建 run 前写入，回答由 API 侧唯一 run 消费者在终态收敛（见 [chat-session-management](./chat-session-management.md)）。
+- 会话由业务 API 保存：run 必须关联已存在的 `sessionId`，用户消息在创建 run 前写入，回答分片由 API 侧唯一 run 消费者在内存中暂存，并在终态一次性收敛（见 [chat-session-management](./chat-session-management.md)）。
 - 活动 run 期间禁用发送、新建与切换会话，避免并发消息与消息错位；创建失败、流中断和失败终态展示通用错误提示。
 - 文件选择保持既有本地类型校验，不上传任何文件。
 
@@ -20,7 +20,7 @@
 
 - 不做登录鉴权、会话/消息/run 的跨重启持久化、SSE cursor 重连恢复。
 - 不做停止/取消按钮、自动重试、Markdown 渲染、文件上传或材料识别。
-- 不做并发消息队列或多标签页协调。
+- 不做并发消息队列或多标签页协调；不承诺进程在 run 终态前崩溃时恢复尚未落库的回答分片。
 - 不让浏览器直连 `insurance-agent` 内部端口，也不把模型回复当作报价、核保等业务状态事实来源。
 - 会话的新建、列表、重命名与历史恢复行为由 [chat-session-management](./chat-session-management.md) 定义，不在本需求内。
 - 不改变 `insurance-agent` 内部契约与运行时行为。

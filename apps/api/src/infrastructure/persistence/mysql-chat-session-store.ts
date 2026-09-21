@@ -16,6 +16,7 @@ import type {
   AppendUserMessageResult,
   ChatSessionStore,
   CreateSessionParams,
+  FinalizeAssistantAnswerParams,
   ListSessionsParams,
   RecoverInterruptedRunsParams,
   RecoverySummary,
@@ -572,6 +573,66 @@ export class MySqlChatSessionStore implements ChatSessionStore {
     } catch (error) {
       if (isNormalizedError(error)) throw error;
       throw unavailable("追加回答增量", error);
+    }
+  }
+
+  async finalizeAssistantAnswer(
+    params: FinalizeAssistantAnswerParams,
+  ): Promise<ChatRunRecord> {
+    assertWritableRunFinishStatus(params.status);
+    try {
+      return await this.db.transaction(async (tx) => {
+        const current = await requireRunRow(tx, params.runId);
+        const updatedAt = toMySqlDateTime(params.updatedAt);
+        if (!isNonTerminalRunStatus(current.status)) {
+          return toRunRecord(current);
+        }
+
+        const assistant = await findMessageRow(tx, params.runId, "assistant");
+        const messageStatus =
+          params.status === "completed" ? "completed" : "failed";
+        if (params.text.length > 0 || assistant !== undefined) {
+          if (assistant === undefined) {
+            const session = await lockSessionRow(tx, current.sessionId);
+            const createdAt = toMySqlDateTime(params.createdAt);
+            const messageOrder = session.nextMessageOrder;
+            await tx.insert(chatMessage).values({
+              messageId: params.messageId,
+              sessionId: current.sessionId,
+              runId: params.runId,
+              messageOrder,
+              role: "assistant",
+              status: messageStatus,
+              text: params.text,
+              createdAt,
+            });
+            await touchSessionOrder(
+              tx,
+              current.sessionId,
+              updatedAt,
+              messageOrder + 1,
+            );
+          } else {
+            await tx
+              .update(chatMessage)
+              .set({ text: params.text, status: messageStatus })
+              .where(eq(chatMessage.messageId, assistant.messageId));
+          }
+        }
+        await tx
+          .update(chatRun)
+          .set({ status: params.status, updatedAt, finishedAt: updatedAt })
+          .where(eq(chatRun.runId, params.runId));
+        await touchSession(tx, current.sessionId, updatedAt);
+        return {
+          ...toRunRecord(current),
+          status: readRunStatus(params.status),
+          updatedAt: fromMySqlDateTime(updatedAt),
+        };
+      });
+    } catch (error) {
+      if (isNormalizedError(error)) throw error;
+      throw unavailable("一次性保存助手回答", error);
     }
   }
 

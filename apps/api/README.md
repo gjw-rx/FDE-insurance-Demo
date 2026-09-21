@@ -28,16 +28,16 @@ src/
 
 ## 公开接口
 
-| Method  | Path                                | 说明                                                      |
-| ------- | ----------------------------------- | --------------------------------------------------------- |
-| `GET`   | `/health/live`                      | 进程存活探针；不访问数据库，数据库故障不会触发进程重启    |
-| `GET`   | `/health/ready`                     | 数据库就绪探针；执行有界往返，未就绪返回 503 与脱敏原因   |
-| `POST`  | `/api/chat/sessions`                | 创建默认标题为「新会话」的空会话                          |
-| `GET`   | `/api/chat/sessions?limit=&cursor=` | 邀请游标分页列出会话摘要（按最近更新时间倒序）            |
-| `GET`   | `/api/chat/sessions/:sessionId`     | 返回会话摘要与有序持久消息                                |
-| `PATCH` | `/api/chat/sessions/:sessionId`     | 重命名会话                                                |
-| `POST`  | `/api/chat/runs`                    | 校验 `{ sessionId, runId, message }` 后保存消息并创建 run |
-| `GET`   | `/api/chat/runs/:runId/events`      | 广播 run 事件流：`id` 为 cursor，`data` 为稳定事件 JSON   |
+| Method  | Path                                | 说明                                                                                |
+| ------- | ----------------------------------- | ----------------------------------------------------------------------------------- |
+| `GET`   | `/health/live`                      | 进程存活探针；不访问数据库，数据库故障不会触发进程重启                              |
+| `GET`   | `/health/ready`                     | 数据库就绪探针；执行有界往返，未就绪返回 503 与脱敏原因                             |
+| `POST`  | `/api/chat/sessions`                | 创建默认标题为「新会话」的空会话                                                    |
+| `GET`   | `/api/chat/sessions?limit=&cursor=` | 邀请游标分页列出会话摘要（按最近更新时间倒序）                                      |
+| `GET`   | `/api/chat/sessions/:sessionId`     | 返回会话摘要与有序持久消息                                                          |
+| `PATCH` | `/api/chat/sessions/:sessionId`     | 重命名会话                                                                          |
+| `POST`  | `/api/chat/runs`                    | 校验 `{ sessionId, runId, message }` 后保存消息并创建 run                           |
+| `GET`   | `/api/chat/runs/:runId/events`      | 广播 run 事件流：`id` 为 cursor，`data` 为稳定事件 JSON；助手回答在终态一次性持久化 |
 
 错误响应只暴露 `@renewal/contracts` 的稳定错误码、脱敏文案与 `retryable`；连接、超时与协议错误统一映射为 `SERVICE_NOT_READY`，不透出内部地址或堆栈。会话资源额外使用 `CHAT_SESSION_NOT_FOUND`（404）与 `CHAT_SESSION_STORE_UNAVAILABLE`（503 可重试）。结构化日志只记录事件名、sessionId/runId 与稳定错误码，不记录标题或消息正文。会话跨 API 重启持久化与启动恢复已实现；当前仍不提供鉴权、SSE 断线续接与停止接口，也不支持多写实例并发协作。
 

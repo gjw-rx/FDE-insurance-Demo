@@ -4,6 +4,7 @@ import type {
   AppendUserMessageResult,
   ChatSessionStore,
   CreateSessionParams,
+  FinalizeAssistantAnswerParams,
   ListSessionsParams,
   RecoverInterruptedRunsParams,
   RecoverySummary,
@@ -228,6 +229,47 @@ export class InMemoryChatSessionStore implements ChatSessionStore {
     }
     list[index] = { ...current, text: current.text + params.text };
     this.touchSession(run.sessionId, params.updatedAt);
+  }
+
+  async finalizeAssistantAnswer(
+    params: FinalizeAssistantAnswerParams,
+  ): Promise<ChatRunRecord> {
+    const run = this.requireRun(params.runId);
+    if (
+      run.status === "completed" ||
+      run.status === "failed" ||
+      run.status === "aborted"
+    ) {
+      return { ...run };
+    }
+    const list = this.listMessages(run.sessionId);
+    const existing = list.find(
+      (message) =>
+        message.runId === params.runId && message.role === "assistant",
+    );
+    const messageStatus =
+      params.status === "completed" ? "completed" : "failed";
+    if (params.text.length > 0 || existing !== undefined) {
+      const message: ChatMessageRecord = {
+        messageId: existing?.messageId ?? params.messageId,
+        sessionId: run.sessionId,
+        runId: run.runId,
+        role: "assistant",
+        status: messageStatus,
+        text: params.text,
+        createdAt: existing?.createdAt ?? params.createdAt,
+      };
+      if (existing === undefined) list.push(message);
+      else list[list.indexOf(existing)] = message;
+    }
+    const updated: ChatRunRecord = {
+      ...run,
+      status: params.status,
+      updatedAt: params.updatedAt,
+    };
+    this.runs.set(updated.runId, updated);
+    this.touchSession(updated.sessionId, params.updatedAt);
+    return { ...updated };
   }
 
   async setRunFinished(params: SetRunFinishedParams): Promise<ChatRunRecord> {
