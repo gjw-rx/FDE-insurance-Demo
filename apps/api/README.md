@@ -2,9 +2,9 @@
 
 该应用是业务系统组合根，负责公开 HTTP/SSE 接口、请求校验、错误转换和基础设施适配器装配。当前已实现最小对话链路（见归档 change `openspec/changes/archive/2026-09-19-connect-chat-agent-streaming/`）与聊天会话管理（见归档 change `openspec/changes/archive/2026-09-19-add-chat-session-management/`）：会话、消息与 run 记录由本服务保存，浏览器经业务 API 创建 run 并订阅 SSE，由 API 侧唯一 run 协调器消费上游事件。身份鉴权、跨重启持久化和续保/报价/核保业务仍属后续 change。
 
-会话数据当前只保存在进程内（`InMemoryChatSessionStore`），API 重启后清空；仓储以 `ChatSessionStore` 接口注入，后续替换为文件或数据库实现时只改组合根。
+会话、消息与 run 记录的事实来源是 MySQL（见 change `persist-chat-sessions-with-mysql`）：生产路径使用 `MySqlChatSessionStore`，API 重启后历史仍可读取；启动时先执行一次幂等恢复，把上一个进程遗留的 `accepted`/`running` run 与 `streaming` 消息收敛为失败，且不重新启动 Agent。进程内实现 `InMemoryChatSessionStore` 只用于测试与本地替身，**生产路径没有内存回退**：注入数据库替身时必须显式注入会话仓储，否则组合根直接失败。
 
-MySQL 连接、迁移与就绪检查基础设施已接入（见 change `introduce-mysql-storage`），但**不承载任何业务数据**：本服务不创建会话、续保、报价或材料表，也没有把会话仓储换成数据库实现。数据库当前的唯一运行时消费者是 `/health/ready` 就绪探针；迁移由发布流程显式执行，不在进程启动时触发。
+MySQL 连接、迁移与就绪检查由 `introduce-mysql-storage` 建立；本 change 在其上新增三张会话业务表（`chat_session`、`chat_message`、`chat_run`）。结构变更由发布流程显式执行迁移，不在进程启动时触发；表结构约束与 DDL 评审门禁见 [`.agents/rules/database-schema-design.md`](../../.agents/rules/database-schema-design.md)。
 
 ```text
 src/
@@ -17,14 +17,14 @@ src/
 ├── interfaces/http/        # Fastify 路由、健康探针、请求校验与错误转换
 └── infrastructure/
     ├── agent/              # insurance-agent 内部 HTTP/SSE typed client
-    ├── database/           # MySQL 连接池、就绪检查与迁移执行
+    ├── database/           # MySQL 连接池、Drizzle 查询句柄、就绪检查与迁移执行
     ├── observability/      # JSON 行结构化日志实现
-    ├── persistence/        # 会话仓储实现（当前为进程内）
+    ├── persistence/        # 会话仓储（MySQL 实现）、受控取值校验与进程内测试替身
     ├── insurer/            # 各保险公司防腐层（后续）
     └── knowledge/          # 保险知识库适配器（后续）
 ```
 
-迁移文件位于 `drizzle/`，当前只有不创建任何业务表的空业务基线。
+`drizzle/` 保存 schema 与迁移：`0000_baseline` 是不创建业务表的空基线，`0001_chat_session_tables` 创建会话三表。字段与表的中文注释只维护在迁移 SQL 内（当前 `drizzle-orm` 没有列注释 API），因此迁移生成后需人工补齐注释并经评审。
 
 ## 公开接口
 
@@ -39,7 +39,7 @@ src/
 | `POST`  | `/api/chat/runs`                    | 校验 `{ sessionId, runId, message }` 后保存消息并创建 run |
 | `GET`   | `/api/chat/runs/:runId/events`      | 广播 run 事件流：`id` 为 cursor，`data` 为稳定事件 JSON   |
 
-错误响应只暴露 `@renewal/contracts` 的稳定错误码、脱敏文案与 `retryable`；连接、超时与协议错误统一映射为 `SERVICE_NOT_READY`，不透出内部地址或堆栈。会话资源额外使用 `CHAT_SESSION_NOT_FOUND`（404）与 `CHAT_SESSION_STORE_UNAVAILABLE`（503 可重试）。结构化日志只记录事件名、sessionId/runId 与稳定错误码，不记录标题或消息正文。当前不提供鉴权、跨重启持久化、SSE 断线续接与停止接口。
+错误响应只暴露 `@renewal/contracts` 的稳定错误码、脱敏文案与 `retryable`；连接、超时与协议错误统一映射为 `SERVICE_NOT_READY`，不透出内部地址或堆栈。会话资源额外使用 `CHAT_SESSION_NOT_FOUND`（404）与 `CHAT_SESSION_STORE_UNAVAILABLE`（503 可重试）。结构化日志只记录事件名、sessionId/runId 与稳定错误码，不记录标题或消息正文。会话跨 API 重启持久化与启动恢复已实现；当前仍不提供鉴权、SSE 断线续接与停止接口，也不支持多写实例并发协作。
 
 ## 运行配置
 
@@ -69,6 +69,7 @@ corepack pnpm --filter @renewal/api start            # 单次启动
 corepack pnpm dev:api                                # 仓库根快捷方式
 corepack pnpm --filter @renewal/api test             # 单元与应用级（不访问数据库）
 corepack pnpm --filter @renewal/api test:integration # 真实数据库（需 DATABASE_TEST_URL）
+corepack pnpm --filter @renewal/api db:generate      # 依 schema 生成迁移（生成后补齐注释并评审）
 corepack pnpm --filter @renewal/api db:migrate       # 发布阶段显式迁移
 ```
 

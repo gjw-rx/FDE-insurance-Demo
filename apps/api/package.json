@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Fastify 业务 API 与 Pi/保险公司基础设施适配器",
   "scripts": {
+    "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx --env-file-if-exists=../../.env src/bootstrap/migrate.ts",
     "dev": "tsx watch --env-file-if-exists=../../.env src/bootstrap/main.ts",
     "start": "tsx --env-file-if-exists=../../.env src/bootstrap/main.ts",

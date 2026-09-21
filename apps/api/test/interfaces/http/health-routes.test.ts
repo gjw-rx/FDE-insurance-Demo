@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createApiApp } from "../../../src/bootstrap/application.js";
 import type { DatabaseReadiness } from "../../../src/infrastructure/database/mysql-database.js";
+import { InMemoryChatSessionStore } from "../../../src/infrastructure/persistence/in-memory-chat-session-store.js";
 import { createFakeDatabase } from "../../support/fake-database.js";
 
 /**
@@ -8,13 +9,17 @@ import { createFakeDatabase } from "../../support/fake-database.js";
  *
  * 使用 Fastify `inject` 与数据库替身：不连接真实数据库也能覆盖就绪、连接失败与
  * 查询超时三种映射，并断言响应不包含内部地址、凭据或驱动错误细节。
+ * 注入数据库替身时必须显式注入会话仓储：生产路径不会回退到内存仓储。
  */
 
 function createApp(readiness?: DatabaseReadiness) {
   const database = createFakeDatabase(
     readiness === undefined ? {} : { readiness },
   );
-  const app = createApiApp({ database });
+  const app = createApiApp({
+    database,
+    sessionStore: new InMemoryChatSessionStore(),
+  });
   return { app, database };
 }
 

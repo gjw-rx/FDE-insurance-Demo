@@ -18,8 +18,22 @@ export const CHAT_SESSION_PAGE_SIZE_DEFAULT = 20;
 /** 会话列表单页最大条数；超出即拒绝，避免一次拉取过多摘要。 */
 export const CHAT_SESSION_PAGE_SIZE_MAX = 100;
 
+/**
+ * 标题来源取值。
+ *
+ * 逻辑枚举的运行时唯一来源：数组是取值的事实来源，联合类型由它派生。数据库不使用
+ * `ENUM`，也不写取值约束，因此取值合法性只在应用层按本数组校验；新增或调整取值
+ * 只需改这里，不需要改库结构。
+ */
+export const CHAT_SESSION_TITLE_SOURCES = [
+  "default",
+  "first-message",
+  "manual",
+] as const;
+
 /** 标题来源：默认标题、首条消息自动命名、用户手动重命名。 */
-export type ChatSessionTitleSource = "default" | "first-message" | "manual";
+export type ChatSessionTitleSource =
+  (typeof CHAT_SESSION_TITLE_SOURCES)[number];
 
 /** 会话摘要：列表与详情共用的元数据，不含消息正文。 */
 export interface ChatSessionSummary {
@@ -32,21 +46,27 @@ export interface ChatSessionSummary {
   readonly updatedAt: string;
 }
 
+/** 消息角色取值；逻辑枚举的运行时唯一来源。 */
+export const CHAT_MESSAGE_ROLES = ["user", "assistant"] as const;
+
 /** 消息角色。 */
-export type ChatMessageRole = "user" | "assistant";
+export type ChatMessageRole = (typeof CHAT_MESSAGE_ROLES)[number];
 
 /**
- * 消息状态。
+ * 消息状态取值；逻辑枚举的运行时唯一来源。
  *
  * `accepted` 与 `streaming` 表示仍在进行或等待回答；`send-failed` 表示用户消息
  * 未能创建 Agent run；`failed` 表示回答以失败终态收敛。失败状态不携带内部错误正文。
  */
-export type ChatMessageStatus =
-  | "accepted"
-  | "send-failed"
-  | "streaming"
-  | "completed"
-  | "failed";
+export const CHAT_MESSAGE_STATUSES = [
+  "accepted",
+  "send-failed",
+  "streaming",
+  "completed",
+  "failed",
+] as const;
+
+export type ChatMessageStatus = (typeof CHAT_MESSAGE_STATUSES)[number];
 
 /** 持久消息。顺序由服务端返回的数组顺序决定，不由时间戳推断。 */
 export interface ChatMessage {

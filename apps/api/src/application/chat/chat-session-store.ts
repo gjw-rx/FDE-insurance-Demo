@@ -94,6 +94,17 @@ export interface SetRunFinishedParams {
   readonly updatedAt: string;
 }
 
+/** 重启恢复入参；时间戳由应用层以 UTC 传入。 */
+export interface RecoverInterruptedRunsParams {
+  readonly updatedAt: string;
+}
+
+/** 重启恢复结果：本次收敛的 run 与消息数量。 */
+export interface RecoverySummary {
+  readonly runs: number;
+  readonly messages: number;
+}
+
 export interface ChatSessionStore {
   createSession(params: CreateSessionParams): Promise<ChatSessionRecord>;
 
@@ -129,4 +140,16 @@ export interface ChatSessionStore {
   appendAssistantDelta(params: AppendAssistantDeltaParams): Promise<void>;
 
   setRunFinished(params: SetRunFinishedParams): Promise<ChatRunRecord>;
+
+  /**
+   * 重启恢复：把遗留的非终态 run 与 `streaming` 助手消息收敛为稳定失败语义。
+   *
+   * 实现约定：
+   * - 只处理非终态记录，因此可重复执行且不产生新变化；
+   * - SHALL NOT 触发外部副作用（例如重新启动 Agent run）；
+   * - 返回本次实际收敛的数量，已收敛的记录不计入。
+   */
+  recoverInterruptedRuns(
+    params: RecoverInterruptedRunsParams,
+  ): Promise<RecoverySummary>;
 }

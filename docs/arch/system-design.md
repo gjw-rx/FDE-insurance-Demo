@@ -47,9 +47,9 @@ apps/api ---> packages/application ---> packages/domain
 - `insurance-agent` 是独立进程，只依赖 Pi SDK 与 contracts；`api` 通过内部 HTTP/SSE typed client 调用，不在自身进程创建 Pi runtime。
 - `web` 只消费 contracts，不直接使用领域实体或 Pi SDK。
 
-当前已实现独立 Pi runtime、内部统一接口，以及最小对话链路（`connect-chat-agent-streaming` change）：浏览器经业务 API `POST /api/chat/runs` 创建 run、经 `GET /api/chat/runs/:runId/events` 订阅 SSE。`add-chat-session-management` change 起新增会话资源层：会话、消息与 run 记录由 `apps/api` 的会话仓储（接口注入，当前为 `InMemoryChatSessionStore`）保存，由 API 侧唯一 run 协调器消费上游事件并在终态写入回答，浏览器只订阅业务 API 广播。仍不实现 Renewal、Material、Knowledge 等业务用例，不注册保险业务工具，也不提供鉴权、跨重启持久化与断线续接。
+当前已实现独立 Pi runtime、内部统一接口，以及最小对话链路（`connect-chat-agent-streaming` change）：浏览器经业务 API `POST /api/chat/runs` 创建 run、经 `GET /api/chat/runs/:runId/events` 订阅 SSE。`add-chat-session-management` change 起新增会话资源层：会话、消息与 run 记录由 `apps/api` 的会话仓储（接口注入，生产实现为 MySQL `MySqlChatSessionStore`，进程内实现只用于测试）保存，由 API 侧唯一 run 协调器消费上游事件并在终态写入回答，浏览器只订阅业务 API 广播。仍不实现 Renewal、Material、Knowledge 等业务用例，不注册保险业务工具，也不提供鉴权与断线续接；跨重启持久化已由 `persist-chat-sessions-with-mysql` change 实现。
 
-`introduce-mysql-storage` change 起新增 MySQL 存储基础设施：`apps/api` 持有连接池，提供 `/health/ready` 就绪探针与发布阶段显式执行的版本化迁移命令（当前只有不创建任何业务表的空业务基线）。数据库**尚未承载业务数据**：会话仍保存在进程内，不存在会话、续保、报价或材料表。业务数据落库属于后续独立 change，需同时明确数据模型、迁移兼容窗口、并发一致性与恢复策略。
+`introduce-mysql-storage` change 起新增 MySQL 存储基础设施：`apps/api` 持有连接池，提供 `/health/ready` 就绪探针与发布阶段显式执行的版本化迁移命令。`persist-chat-sessions-with-mysql` change 起数据库**开始承载会话业务数据**：`chat_session`、`chat_message`、`chat_run` 三表保存会话摘要、消息与 run 幂等/终态记录，写入在事务内完成并用 `(run_id, role)` 唯一键保证幂等，同一会话的消息顺序由行锁分配，不依赖时间戳；API 启动时执行一次幂等恢复，把上次进程遗留的非终态 run 与 `streaming` 消息收敛为失败且不重新启动 Agent。表结构不使用外键、`ENUM` 类型与取值约束，受控取值由应用层按 `@renewal/contracts` 的取值数组校验；续保、报价与材料表仍属于后续独立 change。
 
 ## 两条执行路径
 
@@ -71,15 +71,15 @@ apps/api ---> packages/application ---> packages/domain
 
 ## 状态与事实来源
 
-| 数据                 | 事实来源                                                   |
-| -------------------- | ---------------------------------------------------------- |
-| 续保案件和五项资料   | 业务数据库                                                 |
-| 原始材料             | 对象存储，数据库保存元数据                                 |
-| 报价、核保、出单状态 | 业务数据库 + 保险公司请求记录                              |
-| 对话与业务事件       | 会话/事件存储（当前为业务 API 进程内会话仓储，重启即清空） |
-| 数据库结构与迁移版本 | MySQL 迁移记录表（当前仅空业务基线，无业务表）             |
-| Pi 上下文            | Pi session 存储或数据库恢复条目                            |
-| 排障链路             | trace/log backend                                          |
+| 数据                 | 事实来源                                                                   |
+| -------------------- | -------------------------------------------------------------------------- |
+| 续保案件和五项资料   | 业务数据库                                                                 |
+| 原始材料             | 对象存储，数据库保存元数据                                                 |
+| 报价、核保、出单状态 | 业务数据库 + 保险公司请求记录                                              |
+| 对话与业务事件       | MySQL 会话三表（跨 API 重启保留）；SSE 事件仍在进程内，不跨重启续接        |
+| 数据库结构与迁移版本 | MySQL 迁移记录表 + 会话三表（`0000_baseline`、`0001_chat_session_tables`） |
+| Pi 上下文            | Pi session 存储或数据库恢复条目                                            |
+| 排障链路             | trace/log backend                                                          |
 
 模型回复、Pi JSONL 文件和浏览器状态都不能覆盖业务数据库中的续保状态。
 
@@ -97,10 +97,10 @@ apps/api ---> packages/application ---> packages/domain
 - 图源：[system-architecture.architecture.json](../../artifacts/architecture/system-architecture.architecture.json)
 - 可交互 HTML：[system-architecture.html](../../artifacts/architecture/system-architecture.html)
 - 类型与质量配置：architecture / showcase
-- 图中展示用户与 React Web、业务 API 之间的对话与 SSE 路径，续保与快速问答的后续用例路径，以及 Pi Agent Runtime、受控保险业务工具、模型 Provider、保险公司接口、保险知识库和材料对象存储之间的边界与连接。
-- 该图**未包含** MySQL 存储基础设施：`introduce-mysql-storage` 只接入连接、迁移与就绪，不承载业务数据，因此图中业务数据流仍以虚线标注为后续 change。首次引入业务表时应同步更新图源与渲染产物。
+- 图中展示用户与 React Web、业务 API 之间的对话与 SSE 路径，业务 API 到 MySQL 会话存储的事务读写路径（实线），续保与快速问答的后续用例路径，以及 Pi Agent Runtime、受控保险业务工具、模型 Provider、保险公司接口、保险知识库和材料对象存储之间的边界与连接。
+- 会话落库后，MySQL 会话存储已成为图内的实线数据流（label「会话读写（事务）」）；续保、报价与材料等业务表仍以虚线标注为后续 change。
 - 实线表示已实现的连接（含 Web → 业务 API 的会话资源接口与对话 API/SSE 事件），虚线表示后续 change 的用例；底部卡片区分“当前 change”“Pi 安全边界”与“明确非目标”。
 - Archify validate / deliver：9 项检查全部通过，composition 错误和警告均为 0。
-- 图源 SHA-256 `15578f594961e32cc61868034ea6892e7b0bdb64f8eadf03d13952875a75bdf3`（5596 字节），HTML SHA-256 `a23946e86ef240f183d3cc6a5ae8c3e272b260e4a2910ed05110ed4cb4d10fe6`（815759 字节）。
-- 自动浏览器证据：[检查报告](../../artifacts/architecture/system-architecture.visual-check.json) · [截图总览](../../artifacts/architecture/system-architecture.visual-check.html)。Chrome 检查在 1440×900、1600×1000 与 2048×1320 视口通过，`scrollWidth/scrollHeight` 均未超出视口，可读性检查通过；截图覆盖浅色与深色主题。
-- 人工截图抽查：已重新检查本版本 1440×900 浅色截图，未见节点遮挡、关系线穿越或标签裁切；底部卡片已更新为会话内存保存的当前事实。
+- 图源 SHA-256 `78227d3cfc901712575a12a6282ec1c83b534bee7c71e2ea97161378581fe8c0`（6145 字节），HTML SHA-256 `e71cde09e58c90af994aa0ef87e2fbf4026cbc1ad4620ddf2130d8f303cdfa16`（817930 字节）。
+- 自动浏览器证据：[检查报告](../../artifacts/architecture/system-architecture.visual-check.json) · [截图总览](../../artifacts/architecture/system-architecture.visual-check.html)。Chrome 检查在 1440×900、1600×1000、1920×1080 与 2048×1320 视口通过，`scrollWidth/scrollHeight` 均未超出视口，可读性检查通过；截图覆盖浅色与深色主题。
+- 人工截图抽查：已重新检查本版本 1440×900 浅色截图，未见节点遮挡、关系线穿越或标签裁切；底部卡片已更新为 MySQL 会话持久化与重启恢复的当前事实。

@@ -3,14 +3,15 @@ import type { RowDataPacket } from "mysql2/promise";
 import type { DatabaseConfig } from "../../src/config/database-config.js";
 import { createMySqlPool } from "../../src/infrastructure/database/mysql-database.js";
 import { resolveIntegrationTarget } from "../support/database-test-target.js";
+import { migrateTestEnv } from "../support/migrate-test-env.js";
 import { runMigrate } from "../support/migrate-command-runner.js";
 import { readCell } from "../support/mysql-row.js";
 
 /**
  * 数据库迁移集成测试（需要真实数据库）。
  *
- * 通过真实迁移进程验证：首次应用、重复执行幂等、并发互斥，以及基线迁移不创建
- * 任何业务表。未配置 `DATABASE_TEST_URL` 时整个文件跳过并给出原因，不计为通过。
+ * 通过真实迁移进程验证：首次应用、重复执行幂等、并发互斥，以及迁移后的表集合。
+ * 未配置 `DATABASE_TEST_URL` 时整个文件跳过并给出原因，不计为通过。
  */
 
 const resolution = resolveIntegrationTarget();
@@ -28,24 +29,20 @@ function requireTarget() {
 /** 迁移记录表由 drizzle 迁移器创建。 */
 const MIGRATIONS_TABLE = "__drizzle_migrations";
 
-/** 基线迁移后不应存在的业务表：本 change 不创建任何业务结构。 */
+/** 本 change 批准创建的会话业务表。 */
+const APPROVED_TABLES: readonly string[] = [
+  "chat_message",
+  "chat_run",
+  "chat_session",
+];
+
+/** 仍不属于本次范围的业务表：出现即说明迁移范围越界。 */
 const FORBIDDEN_TABLES: readonly string[] = [
-  "chat_sessions",
-  "chat_messages",
-  "chat_runs",
   "renewal_cases",
   "quotes",
   "materials",
   "users",
 ];
-
-/** 让迁移命令连接到与集成测试相同的目标。 */
-function migrateEnv(): NodeJS.ProcessEnv {
-  return {
-    ...process.env,
-    DATABASE_URL: process.env["DATABASE_TEST_URL"] ?? "",
-  };
-}
 
 /** 列出目标库中的全部表名（小写）。 */
 async function listTables(config: DatabaseConfig): Promise<string[]> {
@@ -74,8 +71,8 @@ async function migrationRowCount(config: DatabaseConfig): Promise<number> {
 }
 
 describe.skipIf(!resolution.ok)("数据库迁移（真实数据库）", () => {
-  it("首次迁移建立迁移元数据，且不创建任何业务表", async () => {
-    const result = await runMigrate(migrateEnv());
+  it("首次迁移建立迁移元数据并创建已批准的三张业务表", async () => {
+    const result = await runMigrate(migrateTestEnv());
 
     expect(result.code).toBe(0);
     expect(result.stdout).toContain("db.migrate.completed");
@@ -84,27 +81,32 @@ describe.skipIf(!resolution.ok)("数据库迁移（真实数据库）", () => {
 
     const tables = await listTables(requireTarget().config);
     expect(tables).toContain(MIGRATIONS_TABLE);
+    for (const approved of APPROVED_TABLES) {
+      expect(tables).toContain(approved);
+    }
     for (const forbidden of FORBIDDEN_TABLES) {
       expect(tables).not.toContain(forbidden);
     }
   });
 
   it("重复执行迁移是幂等的，不会重复应用同一版本", async () => {
-    const first = await runMigrate(migrateEnv());
+    const first = await runMigrate(migrateTestEnv());
     expect(first.code).toBe(0);
     const afterFirst = await migrationRowCount(requireTarget().config);
 
-    const second = await runMigrate(migrateEnv());
+    const second = await runMigrate(migrateTestEnv());
     expect(second.code).toBe(0);
     const afterSecond = await migrationRowCount(requireTarget().config);
 
     expect(afterSecond).toBe(afterFirst);
+    // 空基线 + 会话业务表迁移，至少两条版本记录。
+    expect(afterSecond).toBeGreaterThanOrEqual(2);
   });
 
   it("并发执行迁移由数据库互斥串行化，两个执行者都成功结束", async () => {
     const [first, second] = await Promise.all([
-      runMigrate(migrateEnv()),
-      runMigrate(migrateEnv()),
+      runMigrate(migrateTestEnv()),
+      runMigrate(migrateTestEnv()),
     ]);
 
     expect(first.code).toBe(0);

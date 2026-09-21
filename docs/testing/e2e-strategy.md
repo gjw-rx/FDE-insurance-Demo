@@ -59,6 +59,8 @@ Playwright 官方建议测试用户可见行为并保持测试隔离：[Best Pra
 
 PR E2E 使用真实浏览器、真实 Fastify 进程和测试数据库；Pi、OCR、知识库和保险公司使用可编程 fake server。这样可以稳定制造缺字段、冲突、超时、重复回调和错误码。
 
+已实现的链路用例（`tests/e2e/chat-pipeline.spec.ts`）启动真实 API 进程 + fake insurance-agent + 独立 Vite dev server。会话存储的事实来源已是 MySQL，因此该用例需要隔离数据库：从仓库根 `.env` 读取 `DATABASE_TEST_URL`（库名须含 `test`），未配置时跳过并给出原因，**不用内存存储代替**；用例开始前清空 `chat_session`/`chat_message`/`chat_run` 三张表，使「首屏没有历史会话」的断言与上次运行无关。启动摘要按 `api.started` 事件名解析，不依赖 stdout 行序（启动恢复日志可能先输出）。
+
 发布前 sandbox smoke 才使用真实 Pi 模型和保险公司沙箱。测试账号、材料和身份证号必须是专用合成数据，禁止复制生产用户材料。
 
 ## 数据与隔离

@@ -5170,10 +5170,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <path data-edge-from="api" data-edge-to="agent" data-edge-label="HTTP / SSE" data-edge-key="2" data-edge-id="apiAgent" data-composition-points="560,386;584,386;584,404;616,404;616,388;640,388" d="M 560 386 L 576 386 Q 584 386 584 394 L 584 396 Q 584 404 592 404 L 608 404 Q 616 404 616 396 L 616 396 Q 616 388 624 388 L 640 388" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="agent" data-edge-to="model" data-edge-label="模型流式调用" data-edge-key="3" data-edge-id="agentModel" data-composition-points="845,381;1080,381" d="M 845 381 L 1080 381" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="agent" data-edge-to="readonlyTools" data-edge-label="SDK tool call" data-edge-key="4" data-edge-id="agentTools" data-composition-points="845,395;860,395;860,543;875,543" d="M 845 395 L 852.5 395 Q 860 395 860 402.5 L 860 535.5 Q 860 543 867.5 543 L 875 543" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
-        <path data-edge-from="api" data-edge-to="renewal" data-edge-label="后续业务用例" data-edge-key="5" data-edge-id="apiRenewal" data-composition-points="560,386;600,386;600,153;640,153" d="M 560 386 L 592 386 Q 600 386 600 378 L 600 161 Q 600 153 608 153 L 640 153" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="renewal" data-edge-to="insurers" data-edge-label="后续适配请求" data-edge-key="6" data-edge-id="renewalInsurers" data-composition-points="845,153;875,153" d="M 845 153 L 875 153" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="fastqa" data-edge-to="knowledge" data-edge-label="后续单次检索" data-edge-key="7" data-edge-id="qaKnowledge" data-composition-points="845,688;875,688" d="M 845 688 L 875 688" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="api" data-edge-to="materials" data-edge-label="后续材料用例" data-edge-key="8" data-edge-id="apiMaterials" data-composition-points="470,422;470,650" d="M 470 422 L 470 650" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="api" data-edge-to="mysql" data-edge-label="会话读写（事务）" data-edge-key="5" data-edge-id="apiMysql" data-composition-points="470,422;470,505" d="M 470 422 L 470 505" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="api" data-edge-to="renewal" data-edge-label="后续业务用例" data-edge-key="6" data-edge-id="apiRenewal" data-composition-points="560,386;600,386;600,153;640,153" d="M 560 386 L 592 386 Q 600 386 600 378 L 600 161 Q 600 153 608 153 L 640 153" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="renewal" data-edge-to="insurers" data-edge-label="后续适配请求" data-edge-key="7" data-edge-id="renewalInsurers" data-composition-points="845,153;875,153" d="M 845 153 L 875 153" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="fastqa" data-edge-to="knowledge" data-edge-label="后续单次检索" data-edge-key="8" data-edge-id="qaKnowledge" data-composition-points="845,688;875,688" d="M 845 688 L 875 688" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="api" data-edge-to="materials" data-edge-label="后续材料用例" data-edge-key="9" data-edge-id="apiMaterials" data-composition-points="560,386;600,386;600,688;560,688" d="M 560 386 L 592 386 Q 600 386 600 394 L 600 680 Q 600 688 592 688 L 560 688" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
 
         <!-- Components -->
         <g id="node-customer" data-node-id="customer" data-node-label="用户" tabindex="0" role="button" aria-label="聚焦用户，上传 / 对话 / 确认, 架构组件" aria-pressed="false" data-node-kind="external" data-node-sublabel="上传 / 对话 / 确认" data-node-context="架构组件">
@@ -5315,6 +5316,19 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <text data-detail="fine" x="470" y="718" class="t-database" font-size="7" text-anchor="middle">后续 change</text>
         </g>
 
+        <g id="node-mysql" data-node-id="mysql" data-node-label="MySQL 会话存储" tabindex="0" role="button" aria-label="聚焦MySQL 会话存储，会话 / 消息 / run, 业务服务与后续能力" aria-pressed="false" data-node-kind="database" data-node-sublabel="会话 / 消息 / run" data-node-tag="MySQL 8.0 + Drizzle" data-node-context="业务服务与后续能力">
+          <title>MySQL 会话存储 · 会话 / 消息 / run · 业务服务与后续能力 · MySQL 8.0 + Drizzle</title>
+          <rect x="380" y="505" width="180" height="76" rx="6" class="c-mask"/>
+          <rect x="380" y="505" width="180" height="76" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(386 511) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="470" y="541" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">MySQL 会话存储</text>
+        <text data-detail="context" x="470" y="557" class="t-muted" font-size="9" text-anchor="middle">会话 / 消息 / run</text>
+        <text data-detail="fine" x="470" y="573" class="t-database" font-size="7" text-anchor="middle">MySQL 8.0 + Drizzle</text>
+        </g>
+
         <!-- Connection labels -->
         <g data-detail="context" data-edge-from="customer" data-edge-to="web" data-edge-label="HTTPS" data-edge-key="0" data-edge-id="customerWeb">
           <rect x="140.5" y="366" width="34" height="14" rx="3" class="c-mask"/>
@@ -5325,8 +5339,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <text x="357.5" y="436" class="t-backend" font-size="8" text-anchor="middle">对话 API 与 SSE 事件</text>
         </g>
         <g data-detail="context" data-edge-from="api" data-edge-to="agent" data-edge-label="HTTP / SSE" data-edge-key="2" data-edge-id="apiAgent">
-          <rect x="571" y="460" width="58" height="14" rx="3" class="c-mask"/>
-          <text x="600" y="470" class="t-backend" font-size="8" text-anchor="middle">HTTP / SSE</text>
+          <rect x="531" y="460" width="58" height="14" rx="3" class="c-mask"/>
+          <text x="560" y="470" class="t-backend" font-size="8" text-anchor="middle">HTTP / SSE</text>
         </g>
         <g data-detail="context" data-edge-from="agent" data-edge-to="model" data-edge-label="模型流式调用" data-edge-key="3" data-edge-id="agentModel">
           <rect x="928.7" y="361" width="67.6" height="14" rx="3" class="c-mask"/>
@@ -5336,21 +5350,25 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <rect x="823.8" y="449" width="72.4" height="14" rx="3" class="c-mask"/>
           <text x="860" y="459" class="t-security" font-size="8" text-anchor="middle">SDK tool call</text>
         </g>
-        <g data-detail="context" data-edge-from="api" data-edge-to="renewal" data-edge-label="后续业务用例" data-edge-key="5" data-edge-id="apiRenewal">
+        <g data-detail="context" data-edge-from="api" data-edge-to="mysql" data-edge-label="会话读写（事务）" data-edge-key="5" data-edge-id="apiMysql">
+          <rect x="426.6" y="426" width="86.8" height="14" rx="3" class="c-mask"/>
+          <text x="470" y="436" class="t-backend" font-size="8" text-anchor="middle">会话读写（事务）</text>
+        </g>
+        <g data-detail="context" data-edge-from="api" data-edge-to="renewal" data-edge-label="后续业务用例" data-edge-key="6" data-edge-id="apiRenewal">
           <rect x="566.2" y="249.5" width="67.6" height="14" rx="3" class="c-mask"/>
           <text x="600" y="259.5" class="t-messagebus" font-size="8" text-anchor="middle">后续业务用例</text>
         </g>
-        <g data-detail="context" data-edge-from="renewal" data-edge-to="insurers" data-edge-label="后续适配请求" data-edge-key="6" data-edge-id="renewalInsurers">
+        <g data-detail="context" data-edge-from="renewal" data-edge-to="insurers" data-edge-label="后续适配请求" data-edge-key="7" data-edge-id="renewalInsurers">
           <rect x="826.2" y="195" width="67.6" height="14" rx="3" class="c-mask"/>
           <text x="860" y="205" class="t-messagebus" font-size="8" text-anchor="middle">后续适配请求</text>
         </g>
-        <g data-detail="context" data-edge-from="fastqa" data-edge-to="knowledge" data-edge-label="后续单次检索" data-edge-key="7" data-edge-id="qaKnowledge">
+        <g data-detail="context" data-edge-from="fastqa" data-edge-to="knowledge" data-edge-label="后续单次检索" data-edge-key="8" data-edge-id="qaKnowledge">
           <rect x="826.2" y="730" width="67.6" height="14" rx="3" class="c-mask"/>
           <text x="860" y="740" class="t-messagebus" font-size="8" text-anchor="middle">后续单次检索</text>
         </g>
-        <g data-detail="context" data-edge-from="api" data-edge-to="materials" data-edge-label="后续材料用例" data-edge-key="8" data-edge-id="apiMaterials">
-          <rect x="436.2" y="460" width="67.6" height="14" rx="3" class="c-mask"/>
-          <text x="470" y="470" class="t-messagebus" font-size="8" text-anchor="middle">后续材料用例</text>
+        <g data-detail="context" data-edge-from="api" data-edge-to="materials" data-edge-label="后续材料用例" data-edge-key="9" data-edge-id="apiMaterials">
+          <rect x="566.2" y="610" width="67.6" height="14" rx="3" class="c-mask"/>
+          <text x="600" y="620" class="t-messagebus" font-size="8" text-anchor="middle">后续材料用例</text>
         </g>
 
         <!-- Boundary labels (foreground masks keep routes out of titles) -->
@@ -5591,8 +5609,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </div>
         <ul>
           <li>&bull; 对话链路：Web 经业务 API 创建 run 并订阅 SSE</li>
-          <li>&bull; 会话与消息：业务 API 持会话仓储并消费 Agent 事件后写入</li>
-          <li>&bull; insurance-agent 独立启动、配置和部署</li>
+          <li>&bull; 会话持久化：MySQL 三表保存会话 / 消息 / run，重启后仍可读取</li>
+          <li>&bull; 重启恢复：收敛遗留非终态 run，不重复启动 Agent</li>
         </ul>
       </div>
 
@@ -5614,7 +5632,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </div>
         <ul>
           <li>&bull; 当前不实现续保、报价、核保、材料或问答业务</li>
-          <li>&bull; 会话与消息仅由业务 API 进程内保存，无鉴权与断线续接，不注册业务 custom tools</li>
+          <li>&bull; 不支持多写实例并发协作、实体鉴权与断线续接，不注册业务 custom tools</li>
         </ul>
       </div>
     </div>

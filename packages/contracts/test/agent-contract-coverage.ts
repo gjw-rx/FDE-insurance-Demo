@@ -1,25 +1,24 @@
+import {
+  AGENT_RUN_TERMINAL_STATUSES,
+  AGENT_SERVICE_ERROR_CODES,
+} from "../src/agent/index.js";
 import type {
   AgentRunEventType,
   AgentRunTerminalEventType,
-  AgentRunTerminalStatus,
-  AgentServiceErrorCode,
 } from "../src/agent/index.js";
+import { buildCoverage } from "./coverage.js";
 
 /**
  * 编译期穷举表。
  *
  * 这些表用 `Record<联合类型, true>` 形式声明：一旦新增终态、事件类型或错误码
- * 而没有同步更新，`tsc` 就会失败，避免契约与实现静默漂移。
+ * 而没有同步更新，`tsc` 就会失败，避免契约与实现静默漂移。终态表与错误码表由
+ * `src/agent` 的取值数组派生；事件类型没有运行时数组，仍保留手写表。
  */
 
-export const TERMINAL_RUN_STATUS_COVERAGE: Record<
-  AgentRunTerminalStatus,
-  true
-> = {
-  completed: true,
-  failed: true,
-  aborted: true,
-};
+export const TERMINAL_RUN_STATUS_COVERAGE = buildCoverage(
+  AGENT_RUN_TERMINAL_STATUSES,
+);
 
 export const RUN_EVENT_TYPE_COVERAGE: Record<AgentRunEventType, true> = {
   "run.accepted": true,
@@ -44,14 +43,6 @@ export const TERMINAL_RUN_EVENT_TYPE_COVERAGE: Record<
   "run.aborted": true,
 };
 
-export const SERVICE_ERROR_CODE_COVERAGE: Record<AgentServiceErrorCode, true> =
-  {
-    INVALID_REQUEST: true,
-    CONFIG_INVALID: true,
-    MODEL_UNAVAILABLE: true,
-    SERVICE_NOT_READY: true,
-    CAPACITY_EXCEEDED: true,
-    RUN_NOT_FOUND: true,
-    EVENT_CURSOR_EXPIRED: true,
-    INTERNAL_ERROR: true,
-  };
+export const SERVICE_ERROR_CODE_COVERAGE = buildCoverage(
+  AGENT_SERVICE_ERROR_CODES,
+);

@@ -1,10 +1,12 @@
 /**
  * 数据库 schema 定义入口。
  *
- * 本 change（`introduce-mysql-storage`）只引入 MySQL 基础设施，不创建任何业务表，
- * 因此这里刻意保持为空导出：迁移生成器看到零差异，不会产出业务 DDL。
+ * drizzle-kit 只读取本文件；业务表定义按领域拆分在同目录的单个文件内并在此汇总
+ * 导出，新增领域时新增一个 `*-schema.ts` 文件并追加导出，不在此文件内联表定义。
  *
- * 后续引入会话、续保案件、材料等业务表时，在独立 change 中在同一目录下按领域
- * 拆分 schema 文件并在此汇总导出，同时为该变更单独设计数据迁移与兼容窗口。
+ * change `introduce-mysql-storage` 只引入连接与迁移基础设施，因此当时本文件为空导出；
+ * 本次 change（`persist-chat-sessions-with-mysql`）开始引入会话领域的三张业务表。
+ * 字段与表的中文注释只维护在迁移 SQL 内（`drizzle-orm@0.45.2` 无列注释 API），
+ * 表结构约束见 `.agents/rules/database-schema-design.md`。
  */
-export {};
+export * from "./chat-schema.js";

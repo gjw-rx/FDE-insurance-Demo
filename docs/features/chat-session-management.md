@@ -25,7 +25,7 @@
 
 - 不实现删除、归档、全文搜索会话，不支持跨部署实例同步或并发协作编辑。原型面板中的「搜索最近会话」输入框同样不实现（属于本需求非目标）。
 - 不实现用户登录鉴权：当前会话历史是单部署实例内共享数据，界面与文档均不宣称用户级隔离。
-- 不实现跨 API 重启的持久化与断线续接：会话数据只存在于业务 API 进程内，进程重启后清空；仓储以接口注入，后续由独立 change 替换为数据库实现。
+- 不实现跨 API 重启的数据导出或内存数据迁移：原「会话只存在于进程内、重启即清空」的限制已由 change [`persist-chat-sessions-with-mysql`](../../openspec/changes/archive/2026-09-21-persist-chat-sessions-with-mysql/) 改为 MySQL 持久化，旧内存数据不迁移。
 - 不实现活动 run 的断线续接：页面重新加载后读取的是服务端已保存的最终状态。
 - 不用模型生成标题，不实现会话摘要或自动分类。
 - 不把 Pi 内部 session 作为业务查询入口。
@@ -33,6 +33,8 @@
 ## OpenSpec 关联
 
 - 主 spec：[chat-session-management](../../openspec/specs/chat-session-management/spec.md)
+- 已归档 change：[2026-09-21-persist-chat-sessions-with-mysql](../../openspec/changes/archive/2026-09-21-persist-chat-sessions-with-mysql/)
+- Delta spec（归档留档）：[chat-session-management](../../openspec/changes/archive/2026-09-21-persist-chat-sessions-with-mysql/specs/chat-session-management/spec.md)（新增跨重启持久化、事务幂等与恢复收敛要求）
 - 归档 change：[2026-09-19-add-chat-session-management](../../openspec/changes/archive/2026-09-19-add-chat-session-management/)
 - 归档 Delta spec：[chat-session-management](../../openspec/changes/archive/2026-09-19-add-chat-session-management/specs/chat-session-management/spec.md)
 - 相关需求：[agent-chat-streaming](./agent-chat-streaming.md)、[workbench-shell](./workbench-shell.md)
@@ -41,7 +43,7 @@
 
 ## 后续范围
 
-以下 requirement 由本需求提出，但**未在本 change 实现**，已从归档的 delta spec 中移除，待后续持久化 change 实现并由其 ADD 进主 spec。原文保留在此作为需求依据：
+以下 requirement 由本需求提出，曾在 `add-chat-session-management` 中推迟实现；已由 change [`persist-chat-sessions-with-mysql`](../../openspec/changes/archive/2026-09-21-persist-chat-sessions-with-mysql/) 以 ADD 方式实现，可测试行为以主 spec 的「会话数据跨 API 重启持久保存」为准。原文保留在此作为需求依据：
 
 > ### Requirement: 会话跨服务重启持久保存
 >
@@ -57,7 +59,7 @@
 > - **WHEN** 存储不可写且用户尝试创建、重命名或追加消息
 > - **THEN** 系统返回稳定的服务错误，不报告操作成功，也不在日志中输出消息正文
 
-后续 change 需同时完成：持久化仓储（文件或 DB）、schema 版本、写入原子性与启动校验；进程重启后把遗留 `streaming` 记录收敛为 interrupted，并证明重启不会重复启动 run。
+本 change 落实上述范围：MySQL 持久化仓储、写入原子性与 `runId` 幂等、启动恢复收敛遗留非终态记录，且重启后不重复启动 Agent run。原设想的本地 JSON 快照方案不再采用，直接使用上一 change 已接入的 MySQL。
 
 ## 维护说明
 

@@ -105,6 +105,15 @@
       "tag": "后续 change",
       "pos": [380, 650],
       "size": [180, 76]
+    },
+    {
+      "id": "mysql",
+      "type": "database",
+      "label": "MySQL 会话存储",
+      "sublabel": "会话 / 消息 / run",
+      "tag": "MySQL 8.0 + Drizzle",
+      "pos": [380, 505],
+      "size": [180, 76]
     }
   ],
   "boundaries": [
@@ -114,6 +123,7 @@
       "label": "业务服务与后续能力",
       "wraps": [
         "api",
+        "mysql",
         "renewal",
         "insurers",
         "fastqa",
@@ -154,7 +164,7 @@
       "to": "agent",
       "label": "HTTP / SSE",
       "variant": "emphasis",
-      "labelAt": [600, 470]
+      "labelAt": [560, 470]
     },
     {
       "id": "agentModel",
@@ -169,6 +179,14 @@
       "to": "readonlyTools",
       "label": "SDK tool call",
       "variant": "security"
+    },
+    {
+      "id": "apiMysql",
+      "from": "api",
+      "to": "mysql",
+      "label": "会话读写（事务）",
+      "variant": "emphasis",
+      "labelAt": [470, 436]
     },
     {
       "id": "apiRenewal",
@@ -199,7 +217,13 @@
       "to": "materials",
       "label": "后续材料用例",
       "variant": "dashed",
-      "labelAt": [470, 470]
+      "fromSide": "right",
+      "toSide": "right",
+      "via": [
+        [600, 386],
+        [600, 688]
+      ],
+      "labelAt": [600, 620]
     }
   ],
   "cards": [
@@ -208,8 +232,8 @@
       "title": "当前 change",
       "items": [
         "对话链路：Web 经业务 API 创建 run 并订阅 SSE",
-        "会话与消息：业务 API 持会话仓储并消费 Agent 事件后写入",
-        "insurance-agent 独立启动、配置和部署"
+        "会话持久化：MySQL 三表保存会话 / 消息 / run，重启后仍可读取",
+        "重启恢复：收敛遗留非终态 run，不重复启动 Agent"
       ]
     },
     {
@@ -225,7 +249,7 @@
       "title": "明确非目标",
       "items": [
         "当前不实现续保、报价、核保、材料或问答业务",
-        "会话与消息仅由业务 API 进程内保存，无鉴权与断线续接，不注册业务 custom tools"
+        "不支持多写实例并发协作、实体鉴权与断线续接，不注册业务 custom tools"
       ]
     }
   ]

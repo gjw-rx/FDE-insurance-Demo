@@ -5,6 +5,8 @@ import type {
   ChatSessionStore,
   CreateSessionParams,
   ListSessionsParams,
+  RecoverInterruptedRunsParams,
+  RecoverySummary,
   RenameSessionParams,
   SetRunAcceptedParams,
   SetRunCreateFailedParams,
@@ -20,11 +22,11 @@ import { ChatRequestError } from "../../application/chat/chat-request-error.js";
 import { ChatSessionStoreError } from "../../application/chat/chat-session-store-error.js";
 
 /**
- * 进程内会话仓储。
+ * 进程内会话仓储（测试与本地替身）。
  *
- * 本 change 的会话数据只存在于 API 进程内：进程退出即丢失，不跨重启恢复
- * （见 change design.md「已确认的延期范围」）。仓储通过 `ChatSessionStore`
- * 接口对外，因此后续替换为文件或数据库实现时，应用服务、路由与前端契约都不需要改。
+ * 生产路径使用 `MySqlChatSessionStore`；本实现只用于测试、本地替身与不需要持久化的
+ * 场景：数据随进程退出即丢失，不跨重启恢复。它实现同一个 `ChatSessionStore` 端口，
+ * 因此应用服务、路由与前端契约不区分两者。
  *
  * 实现约定：
  * - 所有方法都是同步内存操作，天然按调用顺序串行，不存在并发写冲突。
@@ -253,6 +255,17 @@ export class InMemoryChatSessionStore implements ChatSessionStore {
     }
     this.touchSession(updated.sessionId, params.updatedAt);
     return { ...updated };
+  }
+
+  /**
+   * 重启恢复：进程内没有跨重启状态，因此没有需要收敛的记录。
+   *
+   * 返回零值而不是抛错，让调用方对两种实现使用同一套生命周期代码。
+   */
+  async recoverInterruptedRuns(
+    _params: RecoverInterruptedRunsParams,
+  ): Promise<RecoverySummary> {
+    return { runs: 0, messages: 0 };
   }
 
   /** 返回可变的会话消息数组（内部使用）。 */

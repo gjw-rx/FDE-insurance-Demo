@@ -6,6 +6,7 @@ import {
   type PoolOptions,
   type SslOptions,
 } from "mysql2/promise";
+import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
 import { ApiConfigError } from "../../config/config-error.js";
 import {
   describeDatabaseTarget,
@@ -16,9 +17,10 @@ import {
 /**
  * MySQL 连接池基础设施。
  *
- * 本 change 只建立连接边界，不提供任何业务查询抽象：连接池当前的唯一消费者是
- * 就绪探针，业务表与 DAO 属于后续独立 change。业务层（application/domain/contracts）
- * 不依赖本模块或 mysql2。
+ * 职责是建立唯一的连接边界：连接池、就绪探针、Drizzle 查询句柄与幂等关闭。业务
+ * 查询与事务由 `infrastructure/persistence` 下的仓储实现使用该句柄完成；
+ * `packages/domain`、`packages/application` 与 `packages/contracts` 不依赖本模块
+ * 或 mysql2。
  *
  * 关键约束：
  * - 池创建不建立 TCP 连接，因此进程启动成功不代表数据库可用；可用性只由
@@ -34,10 +36,24 @@ export type DatabaseReadiness =
   | { readonly ready: true }
   | { readonly ready: false; readonly reason: DatabaseReadinessFailureReason };
 
+/**
+ * Drizzle 查询与事务句柄。
+ *
+ * 类型不绑定具体 schema：业务表定义在 `apps/api/drizzle/` 中按领域维护，仓储直接
+ * 导入表对象，因此句柄只提供参数化查询与事务能力。
+ */
+export type MySqlQueryHandle = MySql2Database<Record<string, never>>;
+
 /** 数据库基础设施对组合根暴露的最小接口。 */
 export interface MySqlDatabase {
   /** 不含凭据的连接目标摘要，可安全写入日志。 */
   readonly target: string;
+  /**
+   * Drizzle 查询句柄。
+   *
+   * 测试替身可以不提供；缺失时组合根要求显式注入会话仓储，不会静默回退到内存实现。
+   */
+  readonly db?: MySqlQueryHandle;
   checkReadiness(): Promise<DatabaseReadiness>;
   close(): Promise<void>;
 }
@@ -45,14 +61,36 @@ export interface MySqlDatabase {
 /** 就绪探针查询：单行、无副作用、不触碰业务数据。 */
 const READINESS_SQL = "select 1";
 
-/** 从无类型错误对象中提取驱动错误码；提取不到时返回 `unknown`。 */
+/**
+ * 从错误对象中提取驱动错误码；提取不到时返回 `unknown`。
+ *
+ * drizzle 会把驱动错误包一层（原错误放在 `cause` 上），因此需要沿 `cause` 链查找，
+ * 否则唯一键冲突、超时等稳定错误码会被当成「未知错误」，导致错误归类与幂等判定失效。
+ * 深度有上限，避免异常构造出的循环引用。
+ */
 export function readErrorCode(error: unknown): string {
-  if (typeof error === "object" && error !== null && "code" in error) {
+  return readErrorCodeAtDepth(error, 0);
+}
+
+function readErrorCodeAtDepth(error: unknown, depth: number): string {
+  if (depth > MAX_ERROR_CAUSE_DEPTH) return "unknown";
+  if (typeof error !== "object" || error === null) return "unknown";
+
+  if ("code" in error) {
     const code = (error as { readonly code?: unknown }).code;
     if (typeof code === "string") return code;
   }
+  if ("cause" in error) {
+    return readErrorCodeAtDepth(
+      (error as { readonly cause?: unknown }).cause,
+      depth + 1,
+    );
+  }
   return "unknown";
 }
+
+/** `cause` 链的最大查找深度。 */
+const MAX_ERROR_CAUSE_DEPTH = 5;
 
 /** 区分超时与连接/认证失败；用于日志诊断，不参与对外响应文案。 */
 function classifyReadinessFailure(
@@ -130,6 +168,10 @@ function buildPoolOptions(
 ): PoolOptions {
   const options: PoolOptions = {
     ...buildConnectionBase(config),
+    // DATETIME(3) 列按 UTC 挂钟值写入。mysql2 默认把 DATETIME 解析成本地时区的
+    // Date 对象，会让读出的时刻随部署机器时区漂移；这里关闭驱动侧日期解析，由
+    // 仓储负责在 ISO 8601 与 MySQL 字面量之间显式转换。
+    dateStrings: true,
     connectionLimit: config.pool.connectionLimit,
     queueLimit: config.pool.queueLimit,
     waitForConnections: true,
@@ -179,6 +221,7 @@ export function createMySqlDatabase(config: DatabaseConfig): MySqlDatabase {
 
   return {
     target: describeDatabaseTarget(config.target),
+    db: drizzle(pool),
     checkReadiness: () =>
       checkDatabaseReadiness(pool, config.pool.queryTimeoutMs),
     close: async (): Promise<void> => {

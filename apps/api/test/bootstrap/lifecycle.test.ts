@@ -23,7 +23,7 @@ interface ApiStartupSummary {
   readonly databaseTarget: string;
 }
 
-/** 等待子进程 stdout 首行启动摘要。 */
+/** 等待子进程 stdout 中的 `api.started` 启动摘要。 */
 async function waitForStarted(child: ChildProcess): Promise<ApiStartupSummary> {
   return new Promise((resolve, reject) => {
     let stdout = "";
@@ -37,7 +37,10 @@ async function waitForStarted(child: ChildProcess): Promise<ApiStartupSummary> {
     });
     child.stdout?.on("data", (chunk: Buffer) => {
       stdout += chunk.toString();
-      const line = stdout.split("\n").find((value) => value.trim() !== "");
+      // 按事件名识别，不依赖行序：启动恢复等日志可能先于启动摘要输出。
+      const line = stdout
+        .split("\n")
+        .find((value) => value.includes('"event":"api.started"'));
       if (line === undefined) return;
       clearTimeout(timeout);
       resolve(JSON.parse(line) as ApiStartupSummary);
@@ -102,16 +105,21 @@ describe("api 进程生命周期", () => {
     });
     expect(invalid.status).toBe(400);
 
-    // 会话路由已装配到组合根：可创建并列出会话（本次为进程内存储）。
+    // 会话路由已装配到组合根，且生产路径使用 MySQL 仓储：数据库不可达时写操作
+    // 返回脱敏的可重试错误，而不是静默回退到进程内存储。
     const created = await fetch(`${started.address}/api/chat/sessions`, {
       method: "POST",
     });
-    expect(created.status).toBe(201);
-    const listed = await fetch(`${started.address}/api/chat/sessions`);
-    expect(listed.status).toBe(200);
-    await expect(listed.json()).resolves.toMatchObject({
-      sessions: [{ title: "新会话", titleSource: "default" }],
+    expect(created.status).toBe(503);
+    const failure = await created.json();
+    expect(failure).toMatchObject({
+      error: { code: "CHAT_SESSION_STORE_UNAVAILABLE", retryable: true },
     });
+    // 错误响应不回显连接目标、凭据或驱动错误细节。
+    const serialized = JSON.stringify(failure);
+    expect(serialized).not.toContain("lifecycle_password");
+    expect(serialized).not.toContain("mysql://");
+    expect(serialized).not.toContain("127.0.0.1");
 
     child.kill("SIGTERM");
     await expect(waitForExit(child)).resolves.toBe(0);
